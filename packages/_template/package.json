@@ -1,10 +1,7 @@
 {
-    "name": "@speron/projekt-front",
-<<<<<<< HEAD
-    "version": "0.0.2",
-=======
-    "version": "0.0.2",
->>>>>>> a6d409a8d5fe5429c035f46c0c24cad34daa9648
+    "name": "@speron4/projekt-front",
+    "version": "0.0.3",
+
     "private": false,
     "publishConfig": {
         "access": "public"
