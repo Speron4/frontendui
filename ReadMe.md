@@ -12,11 +12,11 @@
 # Jak spustit konrétní app
 
 ```cmd
-npm run dev -w @hrbolek/app_dynamic
+npm run dev -w @speron/app_semestr
 ```
 
-# Jak sestavit konrétní app
+# ADRESA
 
 ```cmd
-npm run build -w @hrbolek/app_dynamic
+http://localhost:5173/evaluation
 ```
