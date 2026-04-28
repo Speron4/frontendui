@@ -61,7 +61,7 @@ fragment Role on RoleGQLModel {
     group { __typename id name }
   }
 `
-
+ 
 
 const RBACFragmentStr = `
 fragment RBRoles on RBACObjectGQLModel {
