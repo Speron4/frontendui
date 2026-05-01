@@ -12,7 +12,7 @@
 # Jak spustit konrétní app
 
 ```cmd
-npm run dev -w @speron/app_semestr
+npm run dev -w @speron/app_evaluation
 ```
 
 # ADRESA
