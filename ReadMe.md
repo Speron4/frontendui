@@ -6,13 +6,16 @@
 - script `createvector.js`
 - template `EmptyVectorsAttribute.jsx`
 
-
-
+## 12.5.2026
+- Částečně zprovozněny mutace
+- Oprava datového mapování: Odstraněny generické prefixy (evaluation_)
+- Do hlavního dotazu ve Fragments.jsx bylo přidáno povinné pole examId
+- Ošetření datových typů: Opraveny formulářové komponenty tak, aby neposílaly neplatné datové typy (např. nahrazení textového placeholderu "---" u číselných polí points a order za platnou nulu).
 
 # Jak spustit konrétní app
 
 ```cmd
-npm run dev -w @speron/app_semestr
+npm run dev -w @speron/app_evaluation
 ```
 
 # ADRESA
