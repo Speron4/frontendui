@@ -26,9 +26,28 @@ import { Input } from "../../../../_template/src/Base/FormControls/Input"
 export const MediumEditableContent = ({ item, onChange=(e)=>null, onBlur=(e)=>null, children}) => {
     return (
         <>           
-        {/* defaultValue={item?.name|| "Název"}  */}
-            <Input id={"name"} label={"Jméno"} className="form-control" value={item?.name|| "Název"} onChange={onChange} onBlur={onBlur} />
-            <Input id={"nameEn"} label={"Anglický název"} className="form-control" value={item?.nameEn|| "Anglický název"} onChange={onChange} onBlur={onBlur} />
+            <Input id="description" label="Popis" className="form-control" 
+                value={item?.description || ""} onChange={onChange} onBlur={onBlur} />
+            
+            <Input id="points" type="number" label="Počet bodů" className="form-control" 
+                value={item?.points || 0} onChange={onChange} onBlur={onBlur} />
+            
+            <Input id="order" type="number" label="Pořadí" className="form-control" 
+                value={item?.order || 0} onChange={onChange} onBlur={onBlur} />
+
+            <div className="form-check form-switch my-3">
+                <input className="form-check-input" type="checkbox" id="passed" 
+                    checked={!!item?.passed} 
+                    onChange={(e) => onChange({target: {id: 'passed', value: e.target.checked}})} 
+                />
+                <label className="form-check-label" htmlFor="passed">Prospěl/a</label>
+            </div>
+
+            {/* Zobrazení ID zkoušky pro kontrolu RBAC (přístupu) */}
+            <div className="alert alert-warning mt-2">
+                <small>Přiřazeno ke zkoušce (examId): <b>{item?.examId || "CHYBÍ - nepůjde uložit!"}</b></small>
+            </div>
+
             {children}
         </>
     )

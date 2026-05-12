@@ -4,37 +4,54 @@ import { createAsyncGraphQLAction2 } from "../../../../dynamic/src/Core/createAs
 import { reduceToFirstEntity, updateItemsFromGraphQLResult } from "../../../../dynamic/src/Store";
 
 const UpdateMutationStr = `
-mutation roleTypeUpdate(
-	$id: UUID! # null, 
-	$lastchange: DateTime! # null, 
-	$name: String # null, 
-	$nameEn: String # null
+mutation evaluationUpdate(
+  $id: UUID!, 
+  $lastchange: DateTime!, 
+  $semesterId: UUID, 
+  $userId: UUID, 
+  $order: Int, 
+  $points: Int, 
+  $passed: Boolean, 
+  $description: String, 
+  $grade: String, 
+  $classificationlevelId: UUID, 
+  $examId: UUID, 
+  $eventId: UUID, 
+  $examinerId: UUID
 ) {
-  roleTypeUpdate(
-	roleType: {
-	id: $id, 
-	lastchange: $lastchange, 
-	name: $name, 
-	nameEn: $nameEn}
-  ) {
-    ... on RoleTypeGQLModel { ...Large }
-    ... on RoleTypeGQLModelUpdateError { ...Error }
+  evaluationUpdate(evaluation: {
+    id: $id, 
+    lastchange: $lastchange, 
+    semesterId: $semesterId, 
+    userId: $userId, 
+    order: $order, 
+    points: $points, 
+    passed: $passed, 
+    description: $description, 
+    grade: $grade, 
+    classificationlevelId: $classificationlevelId, 
+    examId: $examId, 
+    eventId: $eventId, 
+    examinerId: $examinerId
+  }) {
+    ... on EvaluationGQLModel { 
+      ...Large 
+    }
+    ... on EvaluationGQLModelUpdateError {
+      __typename
+      msg
+      failed
+      code
+    }
   }
-}
-
-fragment Error on RoleTypeGQLModelUpdateError {
-  __typename
-  Entity {
-    ...Large
-  }
-  msg
-  failed
-  code
-  location
-  input
 }
 `
 
 const UpdateMutation = createQueryStrLazy(`${UpdateMutationStr}`, LargeFragment)
-export const UpdateAsyncAction = createAsyncGraphQLAction2(UpdateMutation, 
-    updateItemsFromGraphQLResult, reduceToFirstEntity)
+
+// Tady už je to zpět tak, jak to knihovna bezpečně zná:
+export const UpdateAsyncAction = createAsyncGraphQLAction2(
+    UpdateMutation, 
+    updateItemsFromGraphQLResult, 
+    reduceToFirstEntity
+)

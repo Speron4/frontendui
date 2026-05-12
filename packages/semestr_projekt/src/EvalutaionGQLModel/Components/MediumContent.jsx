@@ -93,4 +93,30 @@ import { Link } from "./Link"
 //     )
 // }
 
-export { MediumContent } from "../../../../_template/src/Base/Components/MediumContent"
+import { MediumContent as MediumContent_ } from "../../../../_template/src/Base/Components/MediumContent"
+import { Attribute } from "../../../../_template/src/Base/Components"
+
+export const MediumContent = ({ item, children }) => {
+    return (
+        <>
+        Fantomas
+        <Attribute label="Popis">{item?.description || "Bez popisu"}</Attribute>
+            <Attribute label="Pořadí">{item?.order}</Attribute>
+            <Attribute label="Body">
+                <span className="badge bg-primary">{item?.points} b.</span>
+            </Attribute>
+            <Attribute label="Výsledek">
+                {item?.passed ? 
+                    <span style={{color: "green"}}>Prospěl</span> : 
+                    <span style={{color: "red"}}>Neprospěl</span>
+                }
+            </Attribute>
+            
+            <hr />
+        <MediumContent_ item={item}>    
+            {children}
+        </MediumContent_>
+        <pre>{JSON.stringify(item, null, 2)}</pre>
+        </>
+    )   
+    }

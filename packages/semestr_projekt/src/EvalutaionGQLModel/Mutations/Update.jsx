@@ -12,8 +12,8 @@ const DefaultContent = (props) => <MediumEditableContent {...props} />
 const mutationAsyncAction = UpdateAsyncAction
 
 const permissions = {
-    oneOfRoles: ["superadmin"],
-    mode: "absolute",
+    oneOfRoles: ["studijní administrátor", "garant předmětu", "garant programu"],
+    mode: "item",
 }
 
 // ALTERNATIVE, CHECK GQLENDPOINT

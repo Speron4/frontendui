@@ -26,3 +26,14 @@ export const PageCreateItem = ({
         />
     )
 }
+
+/*
+const Add = {state,item}=>{...state,item}
+const Remove= {state,item}=>state.filter{i=>i?.id!==item?.id}
+
+const stateAutomata = {
+   const {item,operation} = payload
+   if (operation === "add") return Add(state,item)
+    if (operation === "remove") return Remove(state,item)
+}
+*/

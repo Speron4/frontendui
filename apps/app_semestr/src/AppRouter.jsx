@@ -39,7 +39,7 @@ const Routes = [
             // ...UserRouterSegments,
             // ...GroupTypeRouterSegments,
             // ...RoleRouterSegments,
-            
+        
         ],
     },
 ];

@@ -14,6 +14,7 @@ fragment Link on EvaluationGQLModel  {
   passed
   description
   classificationlevelId
+  examId
 
 
  
@@ -62,14 +63,33 @@ fragment Role on RoleGQLModel {
   }
 `
  
-
 const RBACFragmentStr = `
 fragment RBRoles on RBACObjectGQLModel {
   __typename
   id
-  roles { __typename }
-  # userCanWithState
-  # userCanWithoutState
+  currentUserRoles {
+    __typename
+    id
+    lastchange
+    valid
+    startdate
+    enddate
+    roletype {
+      __typename
+      id
+      name
+    }
+    group {
+      __typename
+      id
+      name
+      grouptype {
+        __typename
+        id
+        name
+      }
+    }
+  }
 }`
 
 export const RoleFragment = createQueryStrLazy(`${RoleFragmentStr}`)
