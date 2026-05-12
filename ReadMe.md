@@ -6,7 +6,7 @@
 - script `createvector.js`
 - template `EmptyVectorsAttribute.jsx`
 
-##12.5.2026
+## 12.5.2026
 - Částečně zprovozněny mutace
 - Oprava datového mapování: Odstraněny generické prefixy (evaluation_)
 - Do hlavního dotazu ve Fragments.jsx bylo přidáno povinné pole examId
