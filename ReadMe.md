@@ -11,7 +11,9 @@
 - Oprava datového mapování: Odstraněny generické prefixy (evaluation_)
 - Do hlavního dotazu ve Fragments.jsx bylo přidáno povinné pole examId
 - Ošetření datových typů: Opraveny formulářové komponenty tak, aby neposílaly neplatné datové typy (např. nahrazení textového placeholderu "---" u číselných polí points a order za platnou nulu).
-
+  
+## 13.5.2026
+-zprovoznění delete buttonu
 # Jak spustit konrétní app
 
 ```cmd
