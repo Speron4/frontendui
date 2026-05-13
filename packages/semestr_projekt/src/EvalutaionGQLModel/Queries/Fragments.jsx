@@ -92,6 +92,8 @@ fragment RBRoles on RBACObjectGQLModel {
   }
 }`
 
+
+
 export const RoleFragment = createQueryStrLazy(`${RoleFragmentStr}`)
 export const RBACFragment = createQueryStrLazy(`${RBACFragmentStr}`)
 
