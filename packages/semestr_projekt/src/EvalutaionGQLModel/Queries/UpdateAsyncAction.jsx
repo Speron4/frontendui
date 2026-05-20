@@ -42,11 +42,6 @@ mutation evaluationUpdate(
       msg
       failed
       code
-      location
-      input
-      Entity {
-        ...Large
-      }
     }
   }
 }
@@ -54,6 +49,7 @@ mutation evaluationUpdate(
 
 const UpdateMutation = createQueryStrLazy(`${UpdateMutationStr}`, LargeFragment)
 
+// Tady už je to zpět tak, jak to knihovna bezpečně zná:
 export const UpdateAsyncAction = createAsyncGraphQLAction2(
     UpdateMutation, 
     updateItemsFromGraphQLResult, 

@@ -23,8 +23,27 @@ export const InteractiveMutations = ({ item }) => {
             <PageLink className="btn btn-outline-success">Stránka</PageLink>
             <UpdateLink className="btn btn-outline-success" item={item}>Upravit</UpdateLink>
             <UpdateButton className="btn btn-outline-success" item={item}>Upravit Dialog</UpdateButton>
-            <CreateButton className="btn btn-outline-success" rbacitem={{}}>Vytvořit nový</CreateButton>
+            
+            <CreateButton 
+                className="btn btn-outline-success" 
+                item={{ 
+                    examId: item?.examId,
+                    studentId: item?.studentId 
+                }} 
+                rbacitem={item}
+            >
+                Vytvořit nový
+            </CreateButton>
+            
             <DeleteButton className="btn btn-outline-danger" item={item}>Odstranit</DeleteButton>
+
+            {/* Tlačítko je teď modré (btn-outline-primary) */}
+            <button 
+                className="btn btn-outline-primary" 
+                onClick={() => window.location.reload()}
+            >
+                Aktualizovat
+            </button>
         </CardCapsule>
     )
 }

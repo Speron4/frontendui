@@ -99,8 +99,8 @@ import { Attribute } from "../../../../_template/src/Base/Components"
 export const MediumContent = ({ item, children }) => {
     return (
         <>
-        Fantomas
-        <Attribute label="Popis">{item?.description || "Bez popisu"}</Attribute>
+            Fantomas
+            <Attribute label="Popis">{item?.description || "Bez popisu"}</Attribute>
             <Attribute label="Pořadí">{item?.order}</Attribute>
             <Attribute label="Body">
                 <span className="badge bg-primary">{item?.points} b.</span>
@@ -113,10 +113,16 @@ export const MediumContent = ({ item, children }) => {
             </Attribute>
             
             <hr />
-        <MediumContent_ item={item}>    
+            
+            {/* Systémové proměnné (skryto) */}
+            {/* <MediumContent_ item={item}>    
+            </MediumContent_> 
+            */}
+
+            {/* JSON výpis dat (skryto) */}
+            {/* <pre>{JSON.stringify(item, null, 2)}</pre> */}
+            
             {children}
-        </MediumContent_>
-        <pre>{JSON.stringify(item, null, 2)}</pre>
         </>
     )   
-    }
+}
