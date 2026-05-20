@@ -29,11 +29,33 @@ export const MediumEditableContent = ({ item, onChange=(e)=>null, onBlur=(e)=>nu
             <Input id="description" label="Popis" className="form-control" 
                 value={item?.description || ""} onChange={onChange} onBlur={onBlur} />
             
-            <Input id="points" type="number" label="Počet bodů" className="form-control" 
-                value={item?.points || 0} onChange={onChange} onBlur={onBlur} />
+            <Input 
+                id="points" 
+                type="number" 
+                label="Počet bodů" 
+                className="form-control" 
+                value={item?.points ?? 0} 
+                onChange={(e) => {
+                    const val = e.target.value;
+                    // Pokud je pole smazané (prázdný string), pošleme 0, jinak pošleme číslo
+                    onChange({ target: { id: 'points', value: val === '' ? 0 : Number(val) } });
+                }} 
+                onBlur={onBlur} 
+            />
             
-            <Input id="order" type="number" label="Pořadí" className="form-control" 
-                value={item?.order || 0} onChange={onChange} onBlur={onBlur} />
+            <Input 
+                id="order" 
+                type="number" 
+                label="Pořadí" 
+                className="form-control" 
+                value={item?.order ?? 0} 
+                onChange={(e) => {
+                    const val = e.target.value;
+                    // Stejná ochrana i pro pořadí
+                    onChange({ target: { id: 'order', value: val === '' ? 0 : Number(val) } });
+                }} 
+                onBlur={onBlur} 
+            />
 
             <div className="form-check form-switch my-3">
                 <input className="form-check-input" type="checkbox" id="passed" 
