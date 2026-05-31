@@ -22,7 +22,7 @@ fragment Link on EvaluationGQLModel  {
   classificationlevel {
     __typename
     id
-    name
+    grade: name
   }
 
   student {

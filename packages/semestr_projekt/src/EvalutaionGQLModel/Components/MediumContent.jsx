@@ -100,49 +100,94 @@ export const MediumContent = ({ item, children }) => {
     // Vytáhneme role z RBAC objektu, na obrázku je vidět currentUserRoles
     const roles = item?.rbacobject?.currentUserRoles || [];
 
+    // Získání textové podoby známky z načtené relace classificationlevel
+    const gradeText = item?.classificationlevel?.grade || item?.classificationlevel?.name;
+
     return (
-        <>
+        <div className="custom-detail-panel">
+            {/* Vložený styl, který donutí komponentu <Attribute> držet na jednom řádku */}
+            <style>{`
+                .custom-detail-panel .row, 
+                .custom-detail-panel [class*="Attribute"] {
+                    display: flex !important;
+                    flex-direction: row !important;
+                    justify-content: space-between !important;
+                    align-items: flex-start !important;
+                    margin-bottom: 0.75rem;
+                }
+                .custom-detail-panel label,
+                .custom-detail-panel strong {
+                    min-width: 130px;
+                    font-weight: bold;
+                    color: #495057;
+                    margin-bottom: 0 !important;
+                }
+                .custom-detail-panel .id-field {
+                    word-break: break-all !important;
+                    white-space: normal !important;
+                    text-align: left;
+                    display: inline-block;
+                    max-width: 100%;
+                }
+                .custom-detail-panel .grade-badge {
+                    font-size: 1.1rem;
+                    font-weight: bold;
+                    padding: 0.25rem 0.75rem;
+                    border-radius: 6px;
+                }
+            `}</style>
+
             <h5>Hodnocení studenta</h5>
-            <small className="text-muted d-block mb-3">ID: {item?.id}</small>
+            <small className="text-muted d-block mb-3 id-field">ID: {item?.id}</small>
 
             <Attribute label="Popis">{item?.description || "Bez popisu"}</Attribute>
             <Attribute label="Pořadí">{item?.order ?? 1}</Attribute>
             
             <Attribute label="Body">
-                <span className="badge bg-primary">{item?.points ?? 0} b.</span>
+                <span className="badge bg-primary px-2 py-1">{item?.points ?? 0} b.</span>
             </Attribute>
             
             <Attribute label="Výsledek">
-                {item?.passed ? 
-                    <span style={{color: "green", fontWeight: "bold"}}>Prospěl</span> : 
-                    <span style={{color: "red", fontWeight: "bold"}}>Neprospěl</span>
-                }
+    {/* Pokud je známka F, je to Neprospěl. Pokud je tam cokoliv jiného (A až E), je to Prospěl. */}
+    {item?.classificationlevel?.name === "F" || item?.classificationlevel?.grade === "F" ? (
+        <span style={{ color: "red", fontWeight: "bold" }}>Neprospěl</span>
+    ) : (
+        <span style={{ color: "green", fontWeight: "bold" }}>Prospěl</span>
+    )}
+</Attribute>
+
+            {/* Zobrazení reálné známky (Grade) namísto ošklivého UUID */}
+            <Attribute label="Grade">
+                {gradeText ? (
+                    <span className="badge bg-warning text-dark grade-badge">
+                        {gradeText}
+                    </span>
+                ) : (
+                    <span className="text-muted small">ID: {item?.classificationlevelId || "Nepřiřazeno"}</span>
+                )}
             </Attribute>
 
-            {/* Splnění zadání: Ukážeme návaznost na Exam ID */}
-            <Attribute label="ID Zkoušky (Exam)">
-                <span className="font-monospace small">{item?.examId || "Nepřiřazeno"}</span>
-            </Attribute>
-
-            {/* Splnění zadání: Ukážeme ID stupně klasifikace */}
-            <Attribute label="ID Stupně (Grade)">
-                <span className="font-monospace small">{item?.classificationlevelId || "Nepřiřazeno"}</span>
+            {/* Vztah na zkoušku (Exam) – ID zalamujeme na řádku */}
+            <Attribute label="Zkouška (Exam)">
+                <span className="font-monospace small id-field">{item?.examId || "Nepřiřazeno"}</span>
             </Attribute>
             
-            <Attribute label="Moje role ke zkoušce">
-                {roles.length > 0 ? (
-                    roles.map((role) => (
-                        <span key={role.id} className="badge bg-info text-dark me-1 mb-1">
-                            {role.roletype?.name}
-                        </span>
-                    ))
-                ) : (
-                    <span className="text-muted small">currentUserRoles je prázdné</span>
-                )}
+            <Attribute label="Moje role:">
+                <div style={{ textAlign: 'left' }}>
+                    {roles.length > 0 ? (
+                        roles.map((role) => (
+                            <span key={role.id} className="badge bg-info text-dark me-1 mb-1 d-inline-block p-1">
+                                {role.roletype?.name}
+                            </span>
+                        ))
+                    ) : (
+                        <span className="text-muted small">currentUserRoles je prázdné</span>
+                    )}
+                </div>
             </Attribute>
             
             <hr />
             {children}
-        </>
+        </div>
     )   
 }

@@ -26,8 +26,14 @@ import { Input } from "../../../../_template/src/Base/FormControls/Input"
 export const MediumEditableContent = ({ item, onChange=(e)=>null, onBlur=(e)=>null, children}) => {
     return (
         <>           
-            <Input id="description" label="Popis" className="form-control" 
-                value={item?.description || ""} onChange={onChange} onBlur={onBlur} />
+            <Input 
+                id="description" 
+                label="Popis" 
+                className="form-control" 
+                value={item?.description || ""} 
+                onChange={onChange} 
+                onBlur={onBlur} 
+            />
             
             <Input 
                 id="points" 
@@ -57,16 +63,12 @@ export const MediumEditableContent = ({ item, onChange=(e)=>null, onBlur=(e)=>nu
                 onBlur={onBlur} 
             />
 
-            <div className="form-check form-switch my-3">
-                <input className="form-check-input" type="checkbox" id="passed" 
-                    checked={!!item?.passed} 
-                    onChange={(e) => onChange({target: {id: 'passed', value: e.target.checked}})} 
-                />
-                <label className="form-check-label" htmlFor="passed">Prospěl/a</label>
-            </div>
+            {/* POZNÁMKA: Starý switch "Prospěl/a" (id="passed") byl kompletně odstraněn. 
+              Výsledek se teď vyhodnocuje plně automaticky na základě známky v levém panelu!
+            */}
 
             {/* Zobrazení ID zkoušky pro kontrolu RBAC (přístupu) */}
-            <div className="alert alert-warning mt-2">
+            <div className="alert alert-warning mt-3">
                 <small>Přiřazeno ke zkoušce (examId): <b>{item?.examId || "CHYBÍ - nepůjde uložit!"}</b></small>
             </div>
 
