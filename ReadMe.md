@@ -14,6 +14,11 @@
   
 ## 13.5.2026
 -zprovoznění delete buttonu
+
+## 20.5.2026
+- Nyní se automaticky změny ukládají
+- Opraven error když byl řádek prázdný, nyní se defaultně nastaví "0"
+
 # Jak spustit konrétní app
 
 ```cmd
