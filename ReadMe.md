@@ -19,6 +19,10 @@
 - Nyní se automaticky změny ukládají
 - Opraven error když byl řádek prázdný, nyní se defaultně nastaví "0"
 
+## 31.5.2026
+- Úprava zobrazení
+- částečné zprovoznění atributů(ještě je potřeba něco upravit) 
+
 # Jak spustit konrétní app
 
 ```cmd
