@@ -97,31 +97,51 @@ import { MediumContent as MediumContent_ } from "../../../../_template/src/Base/
 import { Attribute } from "../../../../_template/src/Base/Components"
 
 export const MediumContent = ({ item, children }) => {
+    // Vytáhneme role z RBAC objektu, na obrázku je vidět currentUserRoles
+    const roles = item?.rbacobject?.currentUserRoles || [];
+
     return (
         <>
-            Fantomas
+            <h5>Hodnocení studenta</h5>
+            <small className="text-muted d-block mb-3">ID: {item?.id}</small>
+
             <Attribute label="Popis">{item?.description || "Bez popisu"}</Attribute>
-            <Attribute label="Pořadí">{item?.order}</Attribute>
+            <Attribute label="Pořadí">{item?.order ?? 1}</Attribute>
+            
             <Attribute label="Body">
-                <span className="badge bg-primary">{item?.points} b.</span>
+                <span className="badge bg-primary">{item?.points ?? 0} b.</span>
             </Attribute>
+            
             <Attribute label="Výsledek">
                 {item?.passed ? 
-                    <span style={{color: "green"}}>Prospěl</span> : 
-                    <span style={{color: "red"}}>Neprospěl</span>
+                    <span style={{color: "green", fontWeight: "bold"}}>Prospěl</span> : 
+                    <span style={{color: "red", fontWeight: "bold"}}>Neprospěl</span>
                 }
+            </Attribute>
+
+            {/* Splnění zadání: Ukážeme návaznost na Exam ID */}
+            <Attribute label="ID Zkoušky (Exam)">
+                <span className="font-monospace small">{item?.examId || "Nepřiřazeno"}</span>
+            </Attribute>
+
+            {/* Splnění zadání: Ukážeme ID stupně klasifikace */}
+            <Attribute label="ID Stupně (Grade)">
+                <span className="font-monospace small">{item?.classificationlevelId || "Nepřiřazeno"}</span>
+            </Attribute>
+            
+            <Attribute label="Moje role ke zkoušce">
+                {roles.length > 0 ? (
+                    roles.map((role) => (
+                        <span key={role.id} className="badge bg-info text-dark me-1 mb-1">
+                            {role.roletype?.name}
+                        </span>
+                    ))
+                ) : (
+                    <span className="text-muted small">currentUserRoles je prázdné</span>
+                )}
             </Attribute>
             
             <hr />
-            
-            {/* Systémové proměnné (skryto) */}
-            {/* <MediumContent_ item={item}>    
-            </MediumContent_> 
-            */}
-
-            {/* JSON výpis dat (skryto) */}
-            {/* <pre>{JSON.stringify(item, null, 2)}</pre> */}
-            
             {children}
         </>
     )   

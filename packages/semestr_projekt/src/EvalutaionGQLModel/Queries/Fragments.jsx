@@ -16,12 +16,43 @@ fragment Link on EvaluationGQLModel  {
   classificationlevelId
   examId
 
+  # --- SKALÁRNÍ ATRIBUTY (Objekty 1:1) ---
+  # Tyto objekty se po načtení rozbalí v pravém panelu v sekci Skalární atributy
 
- 
+  classificationlevel {
+    __typename
+    id
+    name
+  }
+
+  student {
+    __typename
+    id
+  }
+
+  exam {
+    __typename
+    id
+  }
+
+  event {
+    __typename
+    id
+  }
+
+  # --- VEKTOROVÉ ATRIBUTY (Pole/Seznamy 1:N) ---
+  # Toto pole naplní sekci Vektorové atributy a vytvoří plusko ve stromu TREE!
+  parts {
+    __typename
+    id
+    points
+    passed
+  }
 }
+`
   
 
-`
+
 
 const MediumFragmentStr = `
 fragment Medium on EvaluationGQLModel  {
@@ -100,4 +131,3 @@ export const RBACFragment = createQueryStrLazy(`${RBACFragmentStr}`)
 export const LinkFragment = createQueryStrLazy(`${LinkFragmentStr}`)
 export const MediumFragment = createQueryStrLazy(`${MediumFragmentStr}`, LinkFragment, RBACFragment)
 export const LargeFragment = createQueryStrLazy(`${LargeFragmentStr}`, MediumFragment)
-  
