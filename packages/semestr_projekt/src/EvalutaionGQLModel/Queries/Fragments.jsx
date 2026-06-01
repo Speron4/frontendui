@@ -59,13 +59,19 @@ fragment Link on EvaluationGQLModel  {
     enddate
   }
 
-  # --- VEKTOROVÉ ATRIBUTY (Pole/Seznamy 1:N) ---
+  # --- VEKTOROVÉ ATRIBUTY  ---
   # Toto pole naplní sekci Vektorové atributy a vytvoří plusko ve stromu TREE!
   parts {
     __typename
     id
-    points
-    passed
+    lastchange      
+    points          
+    description     
+    classificationlevel {
+      __typename
+      id
+      grade: name
+      }
   }
 }
 `

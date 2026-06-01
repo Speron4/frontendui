@@ -1,7 +1,7 @@
 {
   "name": "@speron/app_evaluation",
   "private": false,
-  "version": "0.5.2",
+  "version": "0.5.3",
   "type_": "module",
   "files": [
     "dist",
