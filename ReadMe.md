@@ -21,7 +21,10 @@
 
 ## 31.5.2026
 - Úprava zobrazení
-- částečné zprovoznění atributů(ještě je potřeba něco upravit) 
+- částečné zprovoznění atributů(ještě je potřeba něco upravit)
+  
+## 1.6.2026
+-předělání zobrzování číselného jako normálního člověka či zkoušku
 
 # Jak spustit konrétní app
 
