@@ -24,7 +24,7 @@
 - částečné zprovoznění atributů(ještě je potřeba něco upravit)
   
 ## 1.6.2026
--předělání zobrzování číselného jako normálního člověka či zkoušku
+-předělání zobrzování číselného id jako normálního člověka či zkoušku
 
 # Jak spustit konrétní app
 
