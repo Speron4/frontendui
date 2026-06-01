@@ -28,16 +28,35 @@ fragment Link on EvaluationGQLModel  {
   student {
     __typename
     id
+    user {
+      id
+      email
+      fullname
+    }
   }
+    
+  semesterId
+
+  semester {
+    order
+    subject {
+      name
+    }
+  }
+   
 
   exam {
     __typename
     id
   }
 
+
+
   event {
     __typename
     id
+    startdate
+    enddate
   }
 
   # --- VEKTOROVÉ ATRIBUTY (Pole/Seznamy 1:N) ---

@@ -96,12 +96,24 @@ import { Link } from "./Link"
 import { MediumContent as MediumContent_ } from "../../../../_template/src/Base/Components/MediumContent"
 import { Attribute } from "../../../../_template/src/Base/Components"
 
+/**
+ * @file MediumContent.jsx
+ * @description Komponenta pro detailní zobrazení hodnocení studenta v levém panelu.
+ * Uspořádání: ID -> Student -> Zkouška -> Atributy hodnocení.
+ */
+
 export const MediumContent = ({ item, children }) => {
-    // Vytáhneme role z RBAC objektu, na obrázku je vidět currentUserRoles
+    // Vytáhneme role z RBAC objektu
     const roles = item?.rbacobject?.currentUserRoles || [];
 
-    // Získání textové podoby známky z načtené relace classificationlevel
+    // Získání textové podoby známky z načtené relace
     const gradeText = item?.classificationlevel?.grade || item?.classificationlevel?.name;
+
+    // Slovní název studenta z fragmentu
+    const studentName = item?.student?.user?.fullname;
+
+    // Slovní název předmětu/zkoušky z fragmentu (přes semestr a předmět)
+    const examSubjectText = item?.semester?.subject?.name;
 
     return (
         <div className="custom-detail-panel">
@@ -117,7 +129,7 @@ export const MediumContent = ({ item, children }) => {
                 }
                 .custom-detail-panel label,
                 .custom-detail-panel strong {
-                    min-width: 130px;
+                    min-width: 140px;
                     font-weight: bold;
                     color: #495057;
                     margin-bottom: 0 !important;
@@ -135,11 +147,37 @@ export const MediumContent = ({ item, children }) => {
                     padding: 0.25rem 0.75rem;
                     border-radius: 6px;
                 }
+                .custom-detail-panel .text-highlight {
+                    font-weight: 600;
+                    color: #212529;
+                    text-align: left;
+                }
             `}</style>
 
             <h5>Hodnocení studenta</h5>
             <small className="text-muted d-block mb-3 id-field">ID: {item?.id}</small>
 
+            {/* 1. Student úplně nahoře */}
+            <Attribute label="Student">
+                <span className="text-highlight">
+                    {studentName || "Neznámé jméno studenta"}
+                </span>
+            </Attribute>
+
+            {/* 2. Zkouška hned pod studentem */}
+            <Attribute label="Zkouška (Exam)">
+                {examSubjectText ? (
+                    <span className="text-highlight">{examSubjectText}</span>
+                ) : (
+                    <span className="font-monospace small id-field text-muted">
+                        {item?.examId || "Nepřiřazeno"}
+                    </span>
+                )}
+            </Attribute>
+
+            <hr />
+
+            {/* Zbytek detailů hodnocení */}
             <Attribute label="Popis">{item?.description || "Bez popisu"}</Attribute>
             <Attribute label="Pořadí">{item?.order ?? 1}</Attribute>
             
@@ -148,28 +186,24 @@ export const MediumContent = ({ item, children }) => {
             </Attribute>
             
             <Attribute label="Výsledek">
-    {/* Pokud je známka F, je to Neprospěl. Pokud je tam cokoliv jiného (A až E), je to Prospěl. */}
-    {item?.classificationlevel?.name === "F" || item?.classificationlevel?.grade === "F" ? (
-        <span style={{ color: "red", fontWeight: "bold" }}>Neprospěl</span>
-    ) : (
-        <span style={{ color: "green", fontWeight: "bold" }}>Prospěl</span>
-    )}
-</Attribute>
+                {gradeText === "F" ? (
+                    <span style={{color: "red", fontWeight: "bold"}}>Neprospěl</span>
+                ) : (
+                    <span style={{color: "green", fontWeight: "bold"}}>Prospěl</span>
+                )}
+            </Attribute>
 
-            {/* Zobrazení reálné známky (Grade) namísto ošklivého UUID */}
-            <Attribute label="Grade">
+            {/* Zobrazení reálné známky */}
+            <Attribute label="Známka (Grade)">
                 {gradeText ? (
                     <span className="badge bg-warning text-dark grade-badge">
                         {gradeText}
                     </span>
                 ) : (
-                    <span className="text-muted small">ID: {item?.classificationlevelId || "Nepřiřazeno"}</span>
+                    <span className="font-monospace small id-field text-muted">
+                        {item?.classificationlevelId || "Nepřiřazeno"}
+                    </span>
                 )}
-            </Attribute>
-
-            {/* Vztah na zkoušku (Exam) – ID zalamujeme na řádku */}
-            <Attribute label="Zkouška (Exam)">
-                <span className="font-monospace small id-field">{item?.examId || "Nepřiřazeno"}</span>
             </Attribute>
             
             <Attribute label="Moje role:">
