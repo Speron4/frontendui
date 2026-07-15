@@ -38,6 +38,8 @@ fragment Link on EvaluationGQLModel  {
   semesterId
 
   semester {
+    __typename
+    id
     order
     subject {
       name

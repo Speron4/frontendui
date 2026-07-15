@@ -1,227 +1,122 @@
 import { Col } from "../../../../_template/src/Base/Components/Col"
 import { Row } from "../../../../_template/src/Base/Components/Row"
-import { Link } from "./Link"
-/**
- * A component that displays medium-level content for an template entity.
- *
- * This component renders a label "TemplateMediumContent" followed by a serialized representation of the `template` object
- * and any additional child content. It is designed to handle and display information about an template entity object.
- *
- * @component
- * @param {Object} props - The properties for the TemplateMediumContent component.
- * @param {Object} props.template - The object representing the template entity.
- * @param {string|number} props.template.id - The unique identifier for the template entity.
- * @param {string} props.template.name - The name or label of the template entity.
- * @param {React.ReactNode} [props.children=null] - Additional content to render after the serialized `template` object.
- *
- * @returns {JSX.Element} A JSX element displaying the entity's details and optional content.
- *
- * @example
- * // Example usage:
- * const templateEntity = { id: 123, name: "Sample Entity" };
- * 
- * <TemplateMediumContent template={templateEntity}>
- *   <p>Additional information about the entity.</p>
- * </TemplateMediumContent>
- */
-// export const MediumContent = ({ item, children}) => {
-//     return (
-//         <MediumContent_ item={item}>
-//             {children}
-//         </MediumContent_>
-//     )
-// }
-
-// export const MediumContent_ = ({ item, children }) => {
-//     return (
-//         <>
-//             {Object.entries(item).map(([attribute_name, attribute_value]) => {
-//                 // if (attribute_name !== "id") return null
-//                 if (Array.isArray(attribute_value)) return null
-//                 if (typeof attribute_value === "object" && attribute_value !== null) return null
-//                 let attribute_value_result = attribute_value
-//                 // let attribute_value_result = attribute_value
-//                 if (Array.isArray(attribute_value))
-//                     // attribute_value_result = <CardCapsule><Table data={attribute_value} /></CardCapsule>
-//                     return null
-//                 else if (typeof attribute_value === "object" && attribute_value !== null)
-//                     // attribute_value_result = <MediumCard item={attribute_value} />
-//                     return null
-//                 else if (attribute_name === "__typename") {
-//                     /*attribute_value_result = <Link item={attribute_value} />*/
-//                     // console.log("else1", attribute_name, attribute_value)
-//                 }
-//                 if (attribute_name === "id")
-//                     attribute_value_result = <Link item={item}>{item?.id || "Data error"}</Link>
-//                 if (attribute_name === "name")
-//                     attribute_value_result = <Link item={item} />
-//                 // else return null
-//                 if (attribute_value)
-//                     return (
-//                         <Row key={attribute_name}>
-//                             <Col className="col-4"><b>{attribute_name}</b></Col>
-//                             <Col className="col-8">{attribute_value_result}</Col>
-//                         </Row>
-//                     )
-//                 else return null
-//             })}
-//             {Object.entries(item).map(([attribute_name, attribute_value]) => {
-//                 if (attribute_value !== null) return null
-//                 let attribute_value_result = JSON.stringify(attribute_value)
-//                 if (Array.isArray(attribute_value))
-//                     // attribute_value_result = <CardCapsule><Table data={attribute_value} /></CardCapsule>
-//                     return null
-//                 else if (typeof attribute_value === "object" && attribute_value !== null)
-//                     // attribute_value_result = <MediumCard item={attribute_value} />
-//                     return null
-//                 else if (attribute_name === "__typename") {
-//                     /*attribute_value_result = <Link item={attribute_value} />*/
-//                     console.log("else2", attribute_name, attribute_value)
-//                 }
-//                 if (attribute_value)
-//                     return null
-//                 else
-//                     return (
-//                         <Row key={attribute_name}>
-//                             <Col className="col-4"><b>{attribute_name}</b></Col>
-//                             <Col className="col-8">{attribute_value_result}</Col>
-//                         </Row>
-//                     )
-//             })}
-//             {children}
-//         </>
-//     )
-// }
-
+import { Link } from "../../../../_template/src/Base/Components/Link"
+import { ProxyLink } from "../../../../_template/src/Base/Components/ProxyLink"
+import { URIRoot } from "../../uriroot"
 import { MediumContent as MediumContent_ } from "../../../../_template/src/Base/Components/MediumContent"
 import { Attribute } from "../../../../_template/src/Base/Components"
+
+/** Sestaví URL na stránku "seznam hodnocených u zkoušky" */
+const examEvaluationsURL = (examId) =>
+    `${URIRoot}/EvaluationGQLModel/byExam/${examId}`
 
 /**
  * @file MediumContent.jsx
  * @description Komponenta pro detailní zobrazení hodnocení studenta v levém panelu.
- * Uspořádání: ID -> Student -> Zkouška -> Atributy hodnocení.
+ * Uspořádání: ID -> Student -> Zkouška -> Semestr -> Atributy hodnocení.
+ *
+ * @param {Object} props
+ * @param {Object} props.item - Objekt EvaluationGQLModel s navázanými relacemi.
+ * @param {React.ReactNode} [props.children] - Volitelný další obsah pod atributy.
  */
-
 export const MediumContent = ({ item, children }) => {
-    // Vytáhneme role z RBAC objektu
-    const roles = item?.rbacobject?.currentUserRoles || [];
-
-    // Získání textové podoby známky z načtené relace
-    const gradeText = item?.classificationlevel?.grade || item?.classificationlevel?.name;
-
-    // Slovní název studenta z fragmentu
-    const studentName = item?.student?.user?.fullname;
-
-    // Slovní název předmětu/zkoušky z fragmentu (přes semestr a předmět)
-    const examSubjectText = item?.semester?.subject?.name;
+    const roles = item?.rbacobject?.currentUserRoles || []
+    const gradeText = item?.classificationlevel?.grade || item?.classificationlevel?.name
+    const studentName = item?.student?.user?.fullname
+    const examSubjectText = item?.semester?.subject?.name
+    const semesterLabel = item?.semester?.order
+        ? `Semestr č. ${item.semester.order}`
+        : null
+    const eventDate = item?.event?.startdate
+        ? new Date(item.event.startdate).toLocaleDateString("cs-CZ")
+        : null
 
     return (
-        <div className="custom-detail-panel">
-            {/* Vložený styl, který donutí komponentu <Attribute> držet na jednom řádku */}
-            <style>{`
-                .custom-detail-panel .row, 
-                .custom-detail-panel [class*="Attribute"] {
-                    display: flex !important;
-                    flex-direction: row !important;
-                    justify-content: space-between !important;
-                    align-items: flex-start !important;
-                    margin-bottom: 0.75rem;
-                }
-                .custom-detail-panel label,
-                .custom-detail-panel strong {
-                    min-width: 140px;
-                    font-weight: bold;
-                    color: #495057;
-                    margin-bottom: 0 !important;
-                }
-                .custom-detail-panel .id-field {
-                    word-break: break-all !important;
-                    white-space: normal !important;
-                    text-align: left;
-                    display: inline-block;
-                    max-width: 100%;
-                }
-                .custom-detail-panel .grade-badge {
-                    font-size: 1.1rem;
-                    font-weight: bold;
-                    padding: 0.25rem 0.75rem;
-                    border-radius: 6px;
-                }
-                .custom-detail-panel .text-highlight {
-                    font-weight: 600;
-                    color: #212529;
-                    text-align: left;
-                }
-            `}</style>
-
+        <div>
             <h5>Hodnocení studenta</h5>
-            <small className="text-muted d-block mb-3 id-field">ID: {item?.id}</small>
+            <small className="text-muted d-block mb-3">ID: {item?.id}</small>
 
-            {/* 1. Student úplně nahoře */}
+            {/* Student - klikací link na cizí appku se Studentem */}
             <Attribute label="Student">
-                <span className="text-highlight">
-                    {studentName || "Neznámé jméno studenta"}
-                </span>
+                {item?.student ? (
+                    <Link item={item.student}>{studentName || "Zobrazit studenta"}</Link>
+                ) : (
+                    <span className="text-muted">Neznámé jméno studenta</span>
+                )}
             </Attribute>
 
-            {/* 2. Zkouška hned pod studentem */}
+            {/* Zkouška - link na vlastní stránku seznam hodnocených */}
             <Attribute label="Zkouška (Exam)">
-                {examSubjectText ? (
-                    <span className="text-highlight">{examSubjectText}</span>
+                {item?.examId ? (
+                    <ProxyLink to={examEvaluationsURL(item.examId)}>
+                        {examSubjectText || item.examId}
+                    </ProxyLink>
                 ) : (
-                    <span className="font-monospace small id-field text-muted">
-                        {item?.examId || "Nepřiřazeno"}
+                    <span className="font-monospace small text-muted">Nepřiřazeno</span>
+                )}
+            </Attribute>
+
+            {/* Semestr */}
+            <Attribute label="Semestr">
+                {item?.semester ? (
+                    <Link item={item.semester}>
+                        {semesterLabel || "Zobrazit semestr"}
+                    </Link>
+                ) : (
+                    <span className="font-monospace small text-muted">
+                        Semestr nenalezen (ID: {item?.semesterId || "?"})
                     </span>
+                )}
+            </Attribute>
+
+            {/* Event - kdy to proběhlo */}
+            <Attribute label="Kdy proběhlo">
+                {item?.event ? (
+                    <Link item={item.event}>{eventDate || "Zobrazit termín"}</Link>
+                ) : (
+                    <span className="text-muted small">Termín nenalezen</span>
                 )}
             </Attribute>
 
             <hr />
 
-            {/* Zbytek detailů hodnocení */}
             <Attribute label="Popis">{item?.description || "Bez popisu"}</Attribute>
             <Attribute label="Pořadí">{item?.order ?? 1}</Attribute>
-            
             <Attribute label="Body">
-                <span className="badge bg-primary px-2 py-1">{item?.points ?? 0} b.</span>
+                <span className="badge bg-primary">{item?.points ?? 0} b.</span>
             </Attribute>
-            
             <Attribute label="Výsledek">
                 {gradeText === "F" ? (
-                    <span style={{color: "red", fontWeight: "bold"}}>Neprospěl</span>
+                    <span className="text-danger fw-bold">Neprospěl</span>
                 ) : (
-                    <span style={{color: "green", fontWeight: "bold"}}>Prospěl</span>
+                    <span className="text-success fw-bold">Prospěl</span>
                 )}
             </Attribute>
-
-            {/* Zobrazení reálné známky */}
             <Attribute label="Známka (Grade)">
                 {gradeText ? (
-                    <span className="badge bg-warning text-dark grade-badge">
-                        {gradeText}
-                    </span>
+                    <span className="badge bg-warning text-dark">{gradeText}</span>
                 ) : (
-                    <span className="font-monospace small id-field text-muted">
+                    <span className="font-monospace small text-muted">
                         {item?.classificationlevelId || "Nepřiřazeno"}
                     </span>
                 )}
             </Attribute>
-            
-            <Attribute label="Moje role:">
-                <div style={{ textAlign: 'left' }}>
-                    {roles.length > 0 ? (
-                        roles.map((role) => (
-                            <span key={role.id} className="badge bg-info text-dark me-1 mb-1 d-inline-block p-1">
-                                {role.roletype?.name}
-                            </span>
-                        ))
-                    ) : (
-                        <span className="text-muted small">currentUserRoles je prázdné</span>
-                    )}
-                </div>
+            <Attribute label="Moje role">
+                {roles.length > 0 ? (
+                    roles.map((role) => (
+                        <span key={role.id} className="badge bg-info text-dark me-1">
+                            {role.roletype?.name}
+                        </span>
+                    ))
+                ) : (
+                    <span className="text-muted small">
+                        Role nejsou načteny
+                    </span>
+                )}
             </Attribute>
-            
+
             <hr />
             {children}
         </div>
-    )   
+    )
 }

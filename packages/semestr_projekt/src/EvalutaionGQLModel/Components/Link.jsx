@@ -17,6 +17,15 @@ export const ReadItemURI = `${LinkURI}${idParam}`;
 export const UpdateItemURI = `${UpdateURI}${idParam}`;
 export const DeleteItemURI = `${DeleteURI}${idParam}`;
 
+// === NOVÉ: stránka "seznam hodnocených u zkoušky" (vlastní :examId, ne :id) ===
+export const ExamEvaluationsURI = `${modelURI}/byExam/`;
+const examIdParam = ":examId";
+export const ExamEvaluationsItemURI = `${ExamEvaluationsURI}${examIdParam}`;
+
+/** Sestaví konkrétní URL pro daný examId (nahradí :examId reálným ID). */
+export const buildExamEvaluationsURL = (examId) =>
+    ExamEvaluationsItemURI.replace(":examId", examId);
+
 /**
  * A React component that renders a `ProxyLink` to an "template" entity's view page.
  *
