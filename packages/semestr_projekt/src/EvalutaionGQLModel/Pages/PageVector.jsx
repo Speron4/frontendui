@@ -1,4 +1,3 @@
-
 import { ReadPageAsyncAction } from "../Queries"
 import { useInfiniteScroll } from "../../../../dynamic/src/Hooks/useInfiniteScroll"
 import { PageBase } from "./PageBase"
@@ -23,8 +22,8 @@ function safeParseWhere(sp, paramName = "where") {
     }
 }
 
-// 
 const filterParameterName = "gr_where"
+
 export const PageVector = ({ children, queryAsyncAction = ReadPageAsyncAction }) => {
     
     const [sp] = useSearchParams();
@@ -34,13 +33,12 @@ export const PageVector = ({ children, queryAsyncAction = ReadPageAsyncAction })
     const { items, loading, error, hasMore, sentinelRef, loadMore, restart } = useInfiniteScroll(
         {
             asyncAction: queryAsyncAction,
-            actionParams: { skip: 0, limit: 25, where: whereFromUrl },
-            // reset: whereFromUrl
+            actionParams: { skip: 0, limit: 200, where: whereFromUrl },
         }
     )
 
     useEffect(() => {
-        const params = {skip: 0, limit: 25, where: whereFromUrl} 
+        const params = { skip: 0, limit: 200, where: whereFromUrl }
         restart(params)
     }, [whereFromUrl]);
 
@@ -70,11 +68,10 @@ export const PageVector = ({ children, queryAsyncAction = ReadPageAsyncAction })
 
             <Table data={items} />
 
-            <AsyncStateIndicator error={error}  loading={loading} text="Nahrávám další..." />
+            <AsyncStateIndicator error={error} loading={loading} text="Nahrávám další..." />
 
             {hasMore && <div ref={sentinelRef} style={{ height: 80, backgroundColor: "lightgray" }} />}
             {hasMore && <button className="btn btn-success form-control" onClick={() => loadMore()}>Více</button>}
         </PageBase>
     )
 }
-

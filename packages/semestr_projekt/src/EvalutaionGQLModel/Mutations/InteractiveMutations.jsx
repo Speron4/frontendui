@@ -4,6 +4,9 @@ import { UpdateButton, UpdateLink } from "./Update"
 import { ProxyLink } from "../../../../_template/src/Base/Components/ProxyLink"
 import { DeleteButton } from "./Delete"
 
+/**
+ * Link zpět na hlavní stránku se seznamem zkoušek (VectorItemsURI = list).
+ */
 export const PageLink = ({ children, preserveHash = true, preserveSearch = true, ...props }) => {
     return (
         <ProxyLink
@@ -17,6 +20,11 @@ export const PageLink = ({ children, preserveHash = true, preserveSearch = true,
     );
 };
 
+/**
+ * @file InteractiveMutations.jsx
+ * @description Nástroje pro správu hodnocení (CRUD operace).
+ * Tlačítko "Stránka" vrátí uživatele na hlavní seznam zkoušek.
+ */
 export const InteractiveMutations = ({ item }) => {
     return (
         <CardCapsule item={item} title="Nástroje">
@@ -37,13 +45,10 @@ export const InteractiveMutations = ({ item }) => {
             
             <DeleteButton className="btn btn-outline-danger" item={item}>Odstranit</DeleteButton>
 
-            {/* Tlačítko je teď modré (btn-outline-primary) */}
-            <button 
-                className="btn btn-outline-primary" 
-                onClick={() => window.location.reload()}
-            >
-                Aktualizovat
-            </button>
+            {/* Zpět na seznam zkoušek místo reload */}
+            <PageLink className="btn btn-outline-primary">
+                ← Zpět na seznam
+            </PageLink>
         </CardCapsule>
     )
 }

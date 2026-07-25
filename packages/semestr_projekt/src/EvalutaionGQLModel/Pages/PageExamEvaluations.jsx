@@ -4,11 +4,17 @@ import { useInfiniteScroll } from "../../../../dynamic/src/Hooks/useInfiniteScro
 import { ReadPageAsyncAction } from "../Queries"
 import { PageBase } from "./PageBase"
 import { Link } from "../../../../_template/src/Base/Components/Link"
+import { ProxyLink } from "../../../../_template/src/Base/Components/ProxyLink"
 import { AsyncStateIndicator } from "../../../../_template/src/Base/Helpers/AsyncStateIndicator"
+import { URIRoot } from "../../uriroot"
+
+/** URL zpět na hlavní seznam zkoušek */
+const listURL = `${URIRoot}/EvaluationGQLModel/list/`
 
 /**
  * @file PageExamEvaluations.jsx
  * @description Stránka "Seznam hodnocených u zkoušky".
+ * Nahoře link na ExamGQLModel a zpět na seznam.
  * Klik na studenta zobrazí jeho pokusy přímo pod seznamem.
  */
 
@@ -93,6 +99,9 @@ const StudentRow = ({ studentName, studentId, evaluations }) => {
 export const PageExamEvaluations = () => {
     const { examId } = useParams()
 
+    // Sestavíme item pro ExamGQLModel link (generický dispečer potřebuje __typename + id)
+    const examItem = { __typename: "ExamGQLModel", id: examId }
+
     const { items, loading, error, hasMore, sentinelRef, loadMore } = useInfiniteScroll({
         asyncAction: ReadPageAsyncAction,
         actionParams: {
@@ -117,8 +126,15 @@ export const PageExamEvaluations = () => {
 
     return (
         <PageBase>
-            <h3>Zkouška</h3>
-            <p className="font-monospace small text-muted">ID: {examId}</p>
+            {/* Zpět na hlavní seznam */}
+            <ProxyLink to={listURL} className="btn btn-outline-secondary btn-sm mb-3">
+                ← Zpět na seznam zkoušek
+            </ProxyLink>
+
+            {/* Odkaz na ExamGQLModel stránku jiného týmu */}
+            <h3>
+                Zkouška: <Link item={examItem}>{examId}</Link>
+            </h3>
 
             <AsyncStateIndicator error={error} loading={loading} text="Nahrávám hodnocené..." />
 

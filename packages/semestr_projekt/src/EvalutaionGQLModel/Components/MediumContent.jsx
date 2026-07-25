@@ -6,7 +6,7 @@ import { URIRoot } from "../../uriroot"
 import { MediumContent as MediumContent_ } from "../../../../_template/src/Base/Components/MediumContent"
 import { Attribute } from "../../../../_template/src/Base/Components"
 
-/** Sestaví URL na stránku "seznam hodnocených u zkoušky" */
+    /** Sestaví URL na stránku "seznam hodnocených u zkoušky" */
 const examEvaluationsURL = (examId) =>
     `${URIRoot}/EvaluationGQLModel/byExam/${examId}`
 
@@ -45,14 +45,15 @@ export const MediumContent = ({ item, children }) => {
                 )}
             </Attribute>
 
-            {/* Zkouška - link na vlastní stránku seznam hodnocených */}
-            <Attribute label="Zkouška (Exam)">
-                {item?.examId ? (
-                    <ProxyLink to={examEvaluationsURL(item.examId)}>
-                        {examSubjectText || item.examId}
-                    </ProxyLink>
+
+            {/* Předmět - link na SubjectGQLModel */}
+            <Attribute label="Předmět">
+                {item?.semester?.subject ? (
+                    <Link item={item.semester.subject}>
+                        {examSubjectText || "Zobrazit předmět"}
+                    </Link>
                 ) : (
-                    <span className="font-monospace small text-muted">Nepřiřazeno</span>
+                    <span className="text-muted small">Nepřiřazeno</span>
                 )}
             </Attribute>
 
@@ -70,7 +71,7 @@ export const MediumContent = ({ item, children }) => {
             </Attribute>
 
             {/* Event - kdy to proběhlo */}
-            <Attribute label="Kdy proběhlo">
+            <Attribute label="Datum vykonání">
                 {item?.event ? (
                     <Link item={item.event}>{eventDate || "Zobrazit termín"}</Link>
                 ) : (

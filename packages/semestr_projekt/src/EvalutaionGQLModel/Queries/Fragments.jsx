@@ -42,6 +42,8 @@ fragment Link on EvaluationGQLModel  {
     id
     order
     subject {
+      __typename
+      id
       name
     }
   }
@@ -50,6 +52,7 @@ fragment Link on EvaluationGQLModel  {
   exam {
     __typename
     id
+    name
   }
 
 

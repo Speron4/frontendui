@@ -61,3 +61,42 @@ export const Link = ({ item, LinkURI: LinkURI_ = LinkURI, action="view", childre
 }
 
 registerLink('EvaluationGQLModel', Link)
+
+// Registrace linků na cizí entity (jiné týmy) se správnými URI prefixy.
+// Bez této registrace by generický dispečer použil fallback /generic/... prefix.
+// URI prefixy odpovídají klíčům v config.json Docker kontejneru.
+
+const StudentLink = ({ item, action = "view", children, ...props }) => (
+    <ProxyLink to={`/student/StudentGQLModel/${action}/${item?.id}`} {...props}>
+        {children || item?.user?.fullname || item?.fullname || item?.name || item?.id || "Student"}
+    </ProxyLink>
+)
+registerLink('StudentGQLModel', StudentLink)
+
+const SemesterLink = ({ item, action = "view", children, ...props }) => (
+    <ProxyLink to={`/semester/SemesterGQLModel/${action}/${item?.id}`} {...props}>
+        {children || item?.name || item?.id || "Semestr"}
+    </ProxyLink>
+)
+registerLink('SemesterGQLModel', SemesterLink)
+
+const EventLink = ({ item, action = "view", children, ...props }) => (
+    <ProxyLink to={`/event/EventGQLModel/${action}/${item?.id}`} {...props}>
+        {children || item?.name || item?.id || "Událost"}
+    </ProxyLink>
+)
+registerLink('EventGQLModel', EventLink)
+
+const SubjectLink = ({ item, action = "view", children, ...props }) => (
+    <ProxyLink to={`/subject/SubjectGQLModel/${action}/${item?.id}`} {...props}>
+        {children || item?.name || item?.id || "Předmět"}
+    </ProxyLink>
+)
+registerLink('SubjectGQLModel', SubjectLink)
+
+const ExamLink = ({ item, action = "view", children, ...props }) => (
+    <ProxyLink to={`/exam/ExamGQLModel/${action}/${item?.id}`} {...props}>
+        {children || item?.name || item?.id || "Zkouška"}
+    </ProxyLink>
+)
+registerLink('ExamGQLModel', ExamLink)

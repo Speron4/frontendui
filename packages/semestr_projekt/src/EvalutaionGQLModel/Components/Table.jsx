@@ -110,40 +110,20 @@ const StudentRow = ({ studentName, evaluations }) => {
 }
 
 /**
- * Řádek zkoušky – zobrazí examId jako klikací link, rozbalí seznam studentů.
+ * Řádek zkoušky – klik přejde přímo na stránku seznam hodnocených.
  */
-const ExamRow = ({ examId, students }) => {
-    const [open, setOpen] = useState(false)
+const ExamRow = ({ examId, examName, students }) => {
     const studentCount = Object.keys(students).length
 
     return (
-        <>
-            <tr
-                role="button"
-                className="table-primary fw-bold"
-                onClick={() => setOpen((o) => !o)}
-                style={{ cursor: "pointer" }}
-            >
-                <td>
-                    {open ? "▼" : "▶"}{" "}
-                    <ProxyLink
-                        to={examURL(examId)}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        {examId}
-                    </ProxyLink>
-                </td>
-                <td className="text-muted fw-normal small">{studentCount} student(ů)</td>
-            </tr>
-            {open &&
-                Object.entries(students).map(([studentId, { name, evaluations }]) => (
-                    <StudentRow
-                        key={studentId}
-                        studentName={name}
-                        evaluations={evaluations}
-                    />
-                ))}
-        </>
+        <tr className="table-primary fw-bold">
+            <td>
+                <ProxyLink to={examURL(examId)}>
+                    {examName || examId}
+                </ProxyLink>
+            </td>
+            <td className="text-muted fw-normal small">{studentCount} student(ů)</td>
+        </tr>
     )
 }
 
@@ -157,9 +137,13 @@ export const Table = ({ data }) => {
     data.forEach((item) => {
         const examId = item?.examId || "unknown"
         const studentId = item?.student?.id || "unknown"
+        const examName = item?.exam?.name || null
 
         if (!exams[examId]) {
-            exams[examId] = { students: {} }
+            exams[examId] = { examName, students: {} }
+        }
+        if (examName && !exams[examId].examName) {
+            exams[examId].examName = examName
         }
         if (!exams[examId].students[studentId]) {
             exams[examId].students[studentId] = {
@@ -179,10 +163,11 @@ export const Table = ({ data }) => {
                 </tr>
             </thead>
             <tbody>
-                {Object.entries(exams).map(([examId, { students }]) => (
+                {Object.entries(exams).map(([examId, { examName, students }]) => (
                     <ExamRow
                         key={examId}
                         examId={examId}
+                        examName={examName}
                         students={students}
                     />
                 ))}
