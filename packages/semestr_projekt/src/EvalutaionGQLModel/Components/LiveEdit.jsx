@@ -1,3 +1,14 @@
+/**
+ * @file LiveEdit.jsx
+ * @description Komponenta pro live editaci hodnocení — změny se ukládají ihned po blur eventu.
+ *
+ * Na rozdíl od ConfirmEdit (kde uživatel musí kliknout na "Uložit"),
+ * LiveEdit ukládá změny automaticky jakmile uživatel opustí editované pole (onBlur).
+ * Používá `useEditAction` v módu "live".
+ *
+ * @module EvaluationGQLModel/Components/LiveEdit
+ */
+
 import { useCallback } from "react";
 import { useMemo } from "react";
 
@@ -7,105 +18,117 @@ import { MediumEditableContent } from "./MediumEditableContent";
 import { useEditAction } from "../../../../dynamic/src/Hooks/useEditAction";
 
 /**
- * TemplateLiveEdit Component
- *
- * Interaktivní React komponenta pro live editaci entity `template` s podporou optimistického fetchování a debounce delaye.
- *
- * - Používá `useAsyncAction` k načítání a update entit (např. GraphQL mutation).
- * - Pokud se hodnota pole změní, spustí se update po krátkém zpoždění (`delayer`) — uživatelské změny nejsou ihned posílány, ale až po pauze.
- * - Zobrazuje loading a error stav pomocí komponent `LoadingSpinner` a `ErrorHandler`.
- * - Předává editované hodnoty do komponenty `TemplateMediumEditableContent`, která zajišťuje zobrazení a editaci jednotlivých polí šablony (`template`).
+ * Starší/experimentální verze live editoru využívající GQL kontext a AsyncActionProvider.
+ * Aktuálně se nepoužívá (hlavní je `LiveEdit` níže), zachována pro referenci.
  *
  * @component
- * @param {Object} props - Props objekt.
- * @param {Object} props.template - Objekt reprezentující editovanou šablonu (template entity).
- * @param {React.ReactNode} [props.children] - Libovolné children, které se vloží pod editační komponentu.
- * @param {Function} [props.asyncAction=TemplateUpdateAsyncAction] - Asynchronní akce pro update (`useAsyncAction`), typicky GraphQL update mutation.
- *
- * @example
- * // Standardní použití
- * <TemplateLiveEdit template={templateEntity} />
- *
- * @example
- * // S vlastním asyncAction a doplňkovým obsahem
- * <TemplateLiveEdit template={templateEntity} asyncAction={myUpdateAction}>
- *   <div>Extra obsah nebo poznámka</div>
- * </TemplateLiveEdit>
- *
+ * @param {Object} props
+ * @param {React.ReactNode} [props.children] - Volitelný extra obsah.
+ * @param {Function} [props.asyncAction=UpdateAsyncAction] - Async action pro update.
  * @returns {JSX.Element}
- *   Interaktivní komponenta pro live editaci šablony, včetně spinneru a error handleru.
  */
 export const LiveEdit_ = ({ children, asyncAction=UpdateAsyncAction}) => {
+    // Přístup do GQL entity kontextu (poskytuje item, onChange, onBlur)
     const { onChange, onBlur, item } = useGQLEntityContext()
     return (
+        // AsyncActionProvider zajistí načítání dat a spouštění mutací v kontextu
         <AsyncActionProvider 
             item={item} 
             queryAsyncAction={asyncAction}
-            options={{deferred: true, network: true}}
+            options={{deferred: true, network: true}} // deferred = čeká na blur, network = posílá na server
             onChange={onChange}
             onBlur={onBlur}
         >
             <LiveEditWrapper item={item}>
                 {children}
-                {/* <hr />
-                <pre>{JSON.stringify(item, null, 2)}</pre> */}
             </LiveEditWrapper>
         </AsyncActionProvider>
     )
 }
 
+/**
+ * Interní wrapper pro LiveEdit_ — stará se o event handling a binding handlerů.
+ *
+ * handleEvent vytvoří wrapper funkci, která před zavoláním handleru zkontroluje:
+ * - zda event má id a value
+ * - zda se hodnota skutečně změnila (přeskočí pokud je stejná)
+ * Pak sestaví nový item a zavolá handler.
+ *
+ * @component
+ * @param {Object} props
+ * @param {Object} props.item - Aktuální entita.
+ * @param {React.ReactNode} [props.children] - Extra obsah.
+ * @returns {JSX.Element}
+ */
 const LiveEditWrapper = ({ item, children }) => {
-    const { run , error, loading, entity, data, onChange, onBlur } = useGQLEntityContext()
+    const { run, error, loading, entity, data, onChange, onBlur } = useGQLEntityContext()
     
+    // handleEvent — generická factory pro event handlery
+    // Vrátí async funkci která: validuje event → sestaví nový item → zavolá handler
     const handleEvent = useCallback((handler) => async (e) => {
         const {id, value} = e?.target || {}
+        // Přeskočíme event pokud nemá id nebo value (špatný formát eventu)
         if (id === undefined || value === undefined) return 
+        // Přeskočíme pokud se hodnota nezměnila — zbytečný update
         if (item?.[id] === value) {
             return;
         }
+        // Sestavíme nový item se změněným polem
         const newItem = { ...item, [e.target.id]: e.target.value }
         const newEvent = { target: { value: newItem } }
-        // console.log("LiveEditWrapper localOnChange start e", e, '=>', newEvent)
-        // const result = await delayer(()=>onChange(newEvent))
         const result = await handler(newEvent)
-        // console.log("LiveEditWrapper localOnChange end e", e, '=>', newItem, '=>', result)
         return result
     }, [item])
 
+    // useMemo — bindujeme handlery jen při změně onChange/onBlur nebo handleEvent
+    // Tím se předejde zbytečnému re-renderování
     const bindedOnChange = useMemo(() => handleEvent(onChange), [onChange, handleEvent])
     const bindedOnBlur = useMemo(() => handleEvent(onBlur), [onBlur, handleEvent])
 
     return (
-        <MediumEditableContent item={item} onChange={bindedOnChange} onBlur={bindedOnBlur} >
+        <MediumEditableContent item={item} onChange={bindedOnChange} onBlur={bindedOnBlur}>
             {children}
-            {/* <hr />
-            <pre>{JSON.stringify(item, null, 2)}</pre> */}
         </MediumEditableContent>
     )
 }
 
-
+/**
+ * Hlavní live editační komponenta pro hodnocení.
+ *
+ * Používá `useEditAction` v "live" módu — změny se posílají na server
+ * automaticky po opuštění pole (onBlur), bez nutnosti klikat na tlačítko.
+ * Při ukládání zobrazí `LoadingSpinner`.
+ *
+ * @component
+ * @param {Object} props
+ * @param {Object} props.item - Entita EvaluationGQLModel k editaci.
+ * @param {React.ReactNode} [props.children] - Volitelný extra obsah pod poli.
+ * @param {Function} [props.asyncMutationAction=UpdateAsyncAction] - Přepis GraphQL mutace.
+ * @returns {JSX.Element} Live editační formulář s MediumEditableContent.
+ *
+ * @example
+ * <LiveEdit item={evaluationItem} />
+ */
 export const LiveEdit = ({ item, children, asyncMutationAction=UpdateAsyncAction }) => {
-    // const { run , error, loading, entity, data, onChange: contextOnChange, onBlur: contextOnBlur } = useGQLEntityContext()
+    // useEditAction v "live" módu — vrátí onChange/onBlur které rovnou spustí mutaci
     const {
-        draft,
-        dirty,
-        loading: saving,
-        onChange, 
-        onBlur,
-        onCancel,
-        onConfirm,
+        draft,      // aktuální stav editovaného itemu
+        dirty,      // true pokud jsou neuložené změny
+        loading: saving, // přejmenováno na saving — true pokud právě probíhá GraphQL update
+        onChange,   // handler pro Input onChange — aktualizuje draft
+        onBlur,     // handler pro Input onBlur — spustí GraphQL mutaci
+        onCancel,   // (v live módu méně využívaný) — reset na původní hodnoty
+        onConfirm,  // (v live módu méně využívaný) — explicitní potvrzení
     } = useEditAction(asyncMutationAction, item, {
-        mode: "live", 
-        // onCommit: contextOnChange
+        mode: "live", // live = uložit při onBlur, bez potvrzovacího tlačítka
     })
 
     return (
-        
-        <MediumEditableContent item={item} onChange={onChange} onBlur={onBlur} >
+        // MediumEditableContent zobrazí editovatelná pole (Popis, Body, Pořadí)
+        <MediumEditableContent item={item} onChange={onChange} onBlur={onBlur}>
+            {/* Spinner se zobrazí když probíhá GraphQL mutace (ukládání) */}
             {saving && <LoadingSpinner/>}
             {children}
         </MediumEditableContent>
-        
     )
 }

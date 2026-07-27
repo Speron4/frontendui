@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Components/Link.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Components/Link.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file Link.jsx
+ * @description Navigační linky pro EvaluationGQLModel a registrace linků
+ * pro entity jiných týmů v rámci federovaného UOIS stacku.
+ *
+ * Soubor plní dvě role:
+ * 1. Definuje URI konstanty a vlastní Link komponentu pro EvaluationGQLModel.
+ * 2. Registruje Link komponenty pro cizí entity (Student, Exam, Semester,
+ *    Subject, Event) přes generický `registerLink` dispečer z _template.
+ *
+ * @remarks
+ * Proč registrujeme cizí entity zde a ne v jejich vlastních modulech?
+ * Protože náš modul potřebuje na ně odkazovat (MediumContent, Table) —
+ * bez registrace by generický dispečer použil fallback `/generic/` prefix.
+ *
+ * @module EvaluationGQLModel/Components/Link
+ */
+
+import { URIRoot } from "../../uriroot";
+import { registerLink } from "../../../../_template/src/Base/Components/Link";
+import { ProxyLink } from "../../../../_template/src/Base/Components/ProxyLink";
+
+/** Základní URI prefix pro všechny stránky EvaluationGQLModel. */
+const modelURI = `${URIRoot}/EvaluationGQLModel`
+
+/** URI pro seznam hodnocení (PageVector). */
+export const ListURI = `${modelURI}/list/`;
+
+/** URI pro vytvoření nového hodnocení. */
+export const CreateURI = `${modelURI}/create/`;
+
+/** URI pro zobrazení detailu hodnocení (readonly). */
+export const ReadURI = `${modelURI}/view/`;
+
+/** URI pro editaci hodnocení. */
+export const UpdateURI = `${modelURI}/edit/`;
+
+/** URI pro smazání hodnocení. */
+export const DeleteURI = `${modelURI}/delete/`;
+
+/** Výchozí URI pro linky — ukazuje na detail (readonly). */
+export const LinkURI = ReadURI;
+
+/** URI pro seznam hodnocení — alias pro ListURI. */
+export const VectorItemsURI = ListURI;
+
+const idParam = ":id"
+
+/** Routa pro detail hodnocení s parametrem `:id`. */
+export const ReadItemURI = `${LinkURI}${idParam}`;
+
+/** Routa pro editaci hodnocení s parametrem `:id`. */
+export const UpdateItemURI = `${UpdateURI}${idParam}`;
+
+/** Routa pro smazání hodnocení s parametrem `:id`. */
+export const DeleteItemURI = `${DeleteURI}${idParam}`;
+
+/** URI prefix pro stránku seznam hodnocených u zkoušky. */
+export const ExamEvaluationsURI = `${modelURI}/byExam/`;
+
+const examIdParam = ":examId"
+
+/** Routa pro seznam hodnocených u zkoušky s parametrem `:examId`. */
+export const ExamEvaluationsItemURI = `${ExamEvaluationsURI}${examIdParam}`;
+
+/**
+ * Sestaví konkrétní URL pro stránku seznam hodnocených u dané zkoušky.
+ *
+ * @param {string} examId - UUID zkoušky.
+ * @returns {string} Absolutní URL ve formátu `/evaluation/EvaluationGQLModel/byExam/&lt;examId>`.
+ *
+ * @example
+ * const url = buildExamEvaluationsURL("b28fba86-19fa-41b3-ae0e-8c24d058e5be")
+ * // → "/evaluation/EvaluationGQLModel/byExam/b28fba86-..."
+ */
+export const buildExamEvaluationsURL = (examId) =>
+    ExamEvaluationsItemURI.replace(":examId", examId);
+
+/**
+ * Navigační link na detail hodnocení (EvaluationGQLModel).
+ *
+ * Sestaví URL jako `{LinkURI}{item.id}` a zobrazí children nebo
+ * jméno/název/id entity jako fallback text.
+ *
+ * @component
+ * @param {Object} props
+ * @param {Object} props.item - Entita EvaluationGQLModel (musí obsahovat `id`).
+ * @param {string} [props.LinkURI=ReadURI] - Přepis výchozího URI prefixu.
+ * @param {string} [props.action="view"] - Akce (view / edit / delete).
+ * @param {React.ReactNode} [props.children] - Obsah linku; fallback: item.fullname → item.name → item.id.
+ * @returns {JSX.Element} ProxyLink s vytvořenou URL.
+ *
+ * @example
+ * &lt;Link item={evaluationItem}>Detail hodnocení&lt;/Link>
+ */
+export const Link = ({ item, LinkURI: LinkURI_ = LinkURI, action="view", children, ...props}) => {
+    const targetURI = LinkURI_.replace('view', action);
+    return &lt;ProxyLink to={targetURI + item?.id} {...props}>{children || item?.fullname || item?.name || item?.id || "Nevim"}&lt;/ProxyLink>
+}
+
+// Registrace vlastní entity
+registerLink('EvaluationGQLModel', Link)
+
+// ── Registrace linků pro cizí entity (jiné týmy) ─────────────────────────────
+// URI prefixy odpovídají klíčům v config.json Docker kontejneru (hrbolek/frontend).
+// Bez těchto registrací by generický dispečer použil fallback /generic/ prefix.
+
+/**
+ * Navigační link na detail studenta (StudentGQLModel).
+ * Cizí tým — URI prefix `/student/`.
+ *
+ * @component
+ * @param {Object} props
+ * @param {Object} props.item - StudentGQLModel entita (musí obsahovat `__typename` a `id`).
+ * @param {string} [props.action="view"] - Akce routeru.
+ * @param {React.ReactNode} [props.children] - Text linku; fallback: fullname → id.
+ * @returns {JSX.Element}
+ */
+const StudentLink = ({ item, action = "view", children, ...props }) => (
+    &lt;ProxyLink to={`/student/StudentGQLModel/${action}/${item?.id}`} {...props}>
+        {children || item?.user?.fullname || item?.fullname || item?.name || item?.id || "Student"}
+    &lt;/ProxyLink>
+)
+registerLink('StudentGQLModel', StudentLink)
+
+/**
+ * Navigační link na detail semestru (SemesterGQLModel).
+ * Cizí tým — URI prefix `/semester/`.
+ *
+ * @component
+ * @param {Object} props
+ * @param {Object} props.item - SemesterGQLModel entita.
+ * @param {string} [props.action="view"]
+ * @param {React.ReactNode} [props.children]
+ * @returns {JSX.Element}
+ */
+const SemesterLink = ({ item, action = "view", children, ...props }) => (
+    &lt;ProxyLink to={`/semester/SemesterGQLModel/${action}/${item?.id}`} {...props}>
+        {children || item?.name || item?.id || "Semestr"}
+    &lt;/ProxyLink>
+)
+registerLink('SemesterGQLModel', SemesterLink)
+
+/**
+ * Navigační link na detail události (EventGQLModel).
+ * Cizí tým — URI prefix `/event/`.
+ *
+ * @component
+ * @param {Object} props
+ * @param {Object} props.item - EventGQLModel entita.
+ * @param {string} [props.action="view"]
+ * @param {React.ReactNode} [props.children]
+ * @returns {JSX.Element}
+ */
+const EventLink = ({ item, action = "view", children, ...props }) => (
+    &lt;ProxyLink to={`/event/EventGQLModel/${action}/${item?.id}`} {...props}>
+        {children || item?.name || item?.id || "Událost"}
+    &lt;/ProxyLink>
+)
+registerLink('EventGQLModel', EventLink)
+
+/**
+ * Navigační link na detail předmětu (SubjectGQLModel).
+ * Cizí tým — URI prefix `/subject/`.
+ *
+ * @component
+ * @param {Object} props
+ * @param {Object} props.item - SubjectGQLModel entita.
+ * @param {string} [props.action="view"]
+ * @param {React.ReactNode} [props.children]
+ * @returns {JSX.Element}
+ */
+const SubjectLink = ({ item, action = "view", children, ...props }) => (
+    &lt;ProxyLink to={`/subject/SubjectGQLModel/${action}/${item?.id}`} {...props}>
+        {children || item?.name || item?.id || "Předmět"}
+    &lt;/ProxyLink>
+)
+registerLink('SubjectGQLModel', SubjectLink)
+
+/**
+ * Navigační link na detail zkoušky (ExamGQLModel).
+ * Cizí tým — URI prefix `/exam/`.
+ *
+ * @component
+ * @param {Object} props
+ * @param {Object} props.item - ExamGQLModel entita.
+ * @param {string} [props.action="view"]
+ * @param {React.ReactNode} [props.children]
+ * @returns {JSX.Element}
+ */
+const ExamLink = ({ item, action = "view", children, ...props }) => (
+    &lt;ProxyLink to={`/exam/ExamGQLModel/${action}/${item?.id}`} {...props}>
+        {children || item?.name || item?.id || "Zkouška"}
+    &lt;/ProxyLink>
+)
+registerLink('ExamGQLModel', ExamLink)</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-EvaluationGQLModel_Components.html">EvaluationGQLModel/Components</a></li><li><a href="module-EvaluationGQLModel_Components_CardCapsule.html">EvaluationGQLModel/Components/CardCapsule</a></li><li><a href="module-EvaluationGQLModel_Components_Children.html">EvaluationGQLModel/Components/Children</a></li><li><a href="module-EvaluationGQLModel_Components_ConfirmEdit.html">EvaluationGQLModel/Components/ConfirmEdit</a></li><li><a href="module-EvaluationGQLModel_Components_Filter.html">EvaluationGQLModel/Components/Filter</a></li><li><a href="module-EvaluationGQLModel_Components_LargeCard.html">EvaluationGQLModel/Components/LargeCard</a></li><li><a href="module-EvaluationGQLModel_Components_Link.html">EvaluationGQLModel/Components/Link</a></li><li><a href="module-EvaluationGQLModel_Components_LiveEdit.html">EvaluationGQLModel/Components/LiveEdit</a></li><li><a href="module-EvaluationGQLModel_Components_MediumCard.html">EvaluationGQLModel/Components/MediumCard</a></li><li><a href="module-EvaluationGQLModel_Components_MediumEditableContent.html">EvaluationGQLModel/Components/MediumEditableContent</a></li><li><a href="module-EvaluationGQLModel_Pages_PageDeleteItem.html">EvaluationGQLModel/Pages/PageDeleteItem</a></li><li><a href="module-EvaluationGQLModel_Pages_PageExamEvaluations.html">EvaluationGQLModel/Pages/PageExamEvaluations</a></li><li><a href="module-EvaluationGQLModel_Pages_RouterSegment.html">EvaluationGQLModel/Pages/RouterSegment</a></li><li><a href="module-EvaluationGQLModel_Queries_Fragments.html">EvaluationGQLModel/Queries/Fragments</a></li></ul><h3>Global</h3><ul><li><a href="global.html#AttemptsTable">AttemptsTable</a></li><li><a href="global.html#CreateBody">CreateBody</a></li><li><a href="global.html#CreateButton">CreateButton</a></li><li><a href="global.html#CreateDialog">CreateDialog</a></li><li><a href="global.html#CreateLink">CreateLink</a></li><li><a href="global.html#DeleteBody">DeleteBody</a></li><li><a href="global.html#DeleteButton">DeleteButton</a></li><li><a href="global.html#DeleteDialog">DeleteDialog</a></li><li><a href="global.html#DeleteLink">DeleteLink</a></li><li><a href="global.html#ExamRow">ExamRow</a></li><li><a href="global.html#FullContent">FullContent</a></li><li><a href="global.html#MyNavDropdown">MyNavDropdown</a></li><li><a href="global.html#PageBase">PageBase</a></li><li><a href="global.html#PageItemBase">PageItemBase</a></li><li><a href="global.html#PageLink">PageLink</a></li><li><a href="global.html#PageReadItem">PageReadItem</a></li><li><a href="global.html#PageReadItemRolesOn">PageReadItemRolesOn</a></li><li><a href="global.html#PageUpdateItem">PageUpdateItem</a></li><li><a href="global.html#PartsEvaluations">PartsEvaluations</a></li><li><a href="global.html#ReadAsyncAction">ReadAsyncAction</a></li><li><a href="global.html#SearchQueryStr">SearchQueryStr</a></li><li><a href="global.html#StudentRow">StudentRow</a></li><li><a href="global.html#TemplateScalarAttribute">TemplateScalarAttribute</a></li><li><a href="global.html#TemplateScalarAttributeLazy">TemplateScalarAttributeLazy</a></li><li><a href="global.html#TemplateVectorsAttribute">TemplateVectorsAttribute</a></li><li><a href="global.html#TemplateVectorsAttributeInfinite">TemplateVectorsAttributeInfinite</a></li><li><a href="global.html#TemplateVectorsAttributeLazy">TemplateVectorsAttributeLazy</a></li><li><a href="global.html#TemplateVectorsAttribute_old">TemplateVectorsAttribute_old</a></li><li><a href="global.html#UpdateBody">UpdateBody</a></li><li><a href="global.html#UpdateButton">UpdateButton</a></li><li><a href="global.html#UpdateDialog">UpdateDialog</a></li><li><a href="global.html#UpdateLink">UpdateLink</a></li><li><a href="global.html#VectorsVisualiser">VectorsVisualiser</a></li><li><a href="global.html#examEvaluationsURL">examEvaluationsURL</a></li><li><a href="global.html#examURL">examURL</a></li><li><a href="global.html#followUpTemplateVectorItemDelete">followUpTemplateVectorItemDelete</a></li><li><a href="global.html#followUpTemplateVectorItemInsert">followUpTemplateVectorItemInsert</a></li><li><a href="global.html#followUpTemplateVectorItemUpdate">followUpTemplateVectorItemUpdate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon Jul 27 2026 10:06:51 GMT+0200 (středoevropský letní čas)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

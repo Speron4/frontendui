@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Components/LargeCard.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Components/LargeCard.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file LargeCard.jsx
+ * @description Hlavní layout komponenta pro detail stránku hodnocení.
+ *
+ * LargeCard skládá celou detailní stránku ze dvou sloupců:
+ * - **Levý sloupec (LeftColumn):** karta "Detail" s MediumContent + sekce Nástroje (InteractiveMutations)
+ * - **Pravý sloupec (MiddleColumn):** children předané ze stránky (SubPage — GeneratedContentBase, TREE atd.)
+ *
+ * @module EvaluationGQLModel/Components/LargeCard
+ */
+
+// Zakomentované importy ze scaffold šablony — zachovány pro případ budoucího použití
+// import Row from "react-bootstrap/Row"
+import { MediumCard } from "./MediumCard"
+import { CardCapsule as CardCapsule_} from "./CardCapsule"
+import { Row } from "../../../../_template/src/Base/Components/Row"
+// import { LeftColumn, MiddleColumn } from "@hrbolek/uoisfrontend-shared"
+import { MediumContent as MediumContent_ } from "./MediumContent"
+import { InteractiveMutations } from '../Mutations/InteractiveMutations'
+import { LeftColumn, MiddleColumn } from "../../../../_template/src/Base/Components/Col"
+
+/**
+ * Layout karta pro detail stránku hodnocení.
+ *
+ * Obaluje celou detailní stránku do dvou sloupců. Levý sloupec vždy
+ * obsahuje MediumContent (detail hodnocení) + InteractiveMutations (tlačítka).
+ * Pravý sloupec (MiddleColumn) obsahuje `children` — typicky GeneratedContentBase
+ * z PageReadItem (TREE + skalární atributy). V naší implementaci je MiddleColumn
+ * záměrně prázdný (children = null) — obsah je celý v levém sloupci.
+ *
+ * @component
+ * @param {Object} props
+ * @param {Object} props.item - Entita EvaluationGQLModel s rozbalenými relacemi.
+ * @param {React.ReactNode} [props.children] - Obsah pravého sloupce (SubPage ze stránky).
+ * @param {React.ComponentType} [props.CardCapsule=CardCapsule_] - Přepis obalové karty.
+ * @param {React.ComponentType} [props.MediumContent=MediumContent_] - Přepis detail komponenty.
+ * @returns {JSX.Element} Dvousloupcový layout s detailem a nástroji.
+ *
+ * @example
+ * // Použití v PageItemBase z _template:
+ * &lt;LargeCard item={item}>
+ *   {null}
+ * &lt;/LargeCard>
+ */
+export const LargeCard = ({ item, children, CardCapsule=CardCapsule_, MediumContent=MediumContent_ }) => {
+    // console.log("LargeCard.item", item) — zakomentovaný debug log
+    return (
+        // Vnější karta — zobrazí nadpis s odkazem na hodnocení (CardCapsule)
+        &lt;CardCapsule item={item}>
+            {/* Row = Bootstrap flexbox řádek pro dvousloupcový layout */}
+            &lt;Row>
+                {/* Levý sloupec — vždy viditelný */}
+                &lt;LeftColumn>
+                    {/* Vnořená karta s nadpisem "Detail" — obsahuje MediumContent */}
+                    &lt;CardCapsule item={item} title="Detail">
+                        {/* MediumContent zobrazí všechny atributy hodnocení */}
+                        &lt;MediumContent item={item} />
+                    &lt;/CardCapsule>
+                    {/* InteractiveMutations — sekce "Nástroje" s tlačítky Upravit, Smazat atd. */}
+                    &lt;InteractiveMutations item={item} />
+                &lt;/LeftColumn>
+                {/* Pravý sloupec — children z nadřazené stránky (GeneratedContentBase / null) */}
+                &lt;MiddleColumn>
+                    {children}
+                &lt;/MiddleColumn>
+            &lt;/Row>
+        &lt;/CardCapsule>
+    )
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-EvaluationGQLModel_Components.html">EvaluationGQLModel/Components</a></li><li><a href="module-EvaluationGQLModel_Components_CardCapsule.html">EvaluationGQLModel/Components/CardCapsule</a></li><li><a href="module-EvaluationGQLModel_Components_Children.html">EvaluationGQLModel/Components/Children</a></li><li><a href="module-EvaluationGQLModel_Components_ConfirmEdit.html">EvaluationGQLModel/Components/ConfirmEdit</a></li><li><a href="module-EvaluationGQLModel_Components_Filter.html">EvaluationGQLModel/Components/Filter</a></li><li><a href="module-EvaluationGQLModel_Components_LargeCard.html">EvaluationGQLModel/Components/LargeCard</a></li><li><a href="module-EvaluationGQLModel_Components_Link.html">EvaluationGQLModel/Components/Link</a></li><li><a href="module-EvaluationGQLModel_Components_LiveEdit.html">EvaluationGQLModel/Components/LiveEdit</a></li><li><a href="module-EvaluationGQLModel_Components_MediumCard.html">EvaluationGQLModel/Components/MediumCard</a></li><li><a href="module-EvaluationGQLModel_Components_MediumEditableContent.html">EvaluationGQLModel/Components/MediumEditableContent</a></li><li><a href="module-EvaluationGQLModel_Pages_PageDeleteItem.html">EvaluationGQLModel/Pages/PageDeleteItem</a></li><li><a href="module-EvaluationGQLModel_Pages_PageExamEvaluations.html">EvaluationGQLModel/Pages/PageExamEvaluations</a></li><li><a href="module-EvaluationGQLModel_Pages_RouterSegment.html">EvaluationGQLModel/Pages/RouterSegment</a></li><li><a href="module-EvaluationGQLModel_Queries_Fragments.html">EvaluationGQLModel/Queries/Fragments</a></li></ul><h3>Global</h3><ul><li><a href="global.html#AttemptsTable">AttemptsTable</a></li><li><a href="global.html#CreateBody">CreateBody</a></li><li><a href="global.html#CreateButton">CreateButton</a></li><li><a href="global.html#CreateDialog">CreateDialog</a></li><li><a href="global.html#CreateLink">CreateLink</a></li><li><a href="global.html#DeleteBody">DeleteBody</a></li><li><a href="global.html#DeleteButton">DeleteButton</a></li><li><a href="global.html#DeleteDialog">DeleteDialog</a></li><li><a href="global.html#DeleteLink">DeleteLink</a></li><li><a href="global.html#ExamRow">ExamRow</a></li><li><a href="global.html#FullContent">FullContent</a></li><li><a href="global.html#MyNavDropdown">MyNavDropdown</a></li><li><a href="global.html#PageBase">PageBase</a></li><li><a href="global.html#PageItemBase">PageItemBase</a></li><li><a href="global.html#PageLink">PageLink</a></li><li><a href="global.html#PageReadItem">PageReadItem</a></li><li><a href="global.html#PageReadItemRolesOn">PageReadItemRolesOn</a></li><li><a href="global.html#PageUpdateItem">PageUpdateItem</a></li><li><a href="global.html#PartsEvaluations">PartsEvaluations</a></li><li><a href="global.html#ReadAsyncAction">ReadAsyncAction</a></li><li><a href="global.html#SearchQueryStr">SearchQueryStr</a></li><li><a href="global.html#StudentRow">StudentRow</a></li><li><a href="global.html#TemplateScalarAttribute">TemplateScalarAttribute</a></li><li><a href="global.html#TemplateScalarAttributeLazy">TemplateScalarAttributeLazy</a></li><li><a href="global.html#TemplateVectorsAttribute">TemplateVectorsAttribute</a></li><li><a href="global.html#TemplateVectorsAttributeInfinite">TemplateVectorsAttributeInfinite</a></li><li><a href="global.html#TemplateVectorsAttributeLazy">TemplateVectorsAttributeLazy</a></li><li><a href="global.html#TemplateVectorsAttribute_old">TemplateVectorsAttribute_old</a></li><li><a href="global.html#UpdateBody">UpdateBody</a></li><li><a href="global.html#UpdateButton">UpdateButton</a></li><li><a href="global.html#UpdateDialog">UpdateDialog</a></li><li><a href="global.html#UpdateLink">UpdateLink</a></li><li><a href="global.html#VectorsVisualiser">VectorsVisualiser</a></li><li><a href="global.html#examEvaluationsURL">examEvaluationsURL</a></li><li><a href="global.html#examURL">examURL</a></li><li><a href="global.html#followUpTemplateVectorItemDelete">followUpTemplateVectorItemDelete</a></li><li><a href="global.html#followUpTemplateVectorItemInsert">followUpTemplateVectorItemInsert</a></li><li><a href="global.html#followUpTemplateVectorItemUpdate">followUpTemplateVectorItemUpdate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon Jul 27 2026 10:06:51 GMT+0200 (středoevropský letní čas)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

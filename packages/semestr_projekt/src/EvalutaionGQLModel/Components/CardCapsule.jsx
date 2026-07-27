@@ -3,40 +3,54 @@ import { Link } from "./Link"
 import { CardCapsule as CardCapsule_ } from "../../../../_template/src/Base/Components"
 
 /**
- * A specialized card component that displays an `TemplateLink` as its title and encapsulates additional content.
+ * @file CardCapsule.jsx
+ * @description Obalová karta pro EvaluationGQLModel s ikonou a linkem v nadpisu.
  *
- * This component extends the `CardCapsule` component by using a combination of a `PersonFill` icon and 
- * an `TemplateLink` component in the card's header. The `children` prop is used to render any content 
- * inside the card body. It is designed for use with entities represented by the `template` object.
+ * Rozšiřuje generickou CardCapsule z _template o výchozí nadpis
+ * složený z ikony PersonFill a klikacího linku na detail hodnocení.
+ *
+ * @module EvaluationGQLModel/Components/CardCapsule
+ */
+
+/**
+ * Obalová karta hodnocení s dynamickým nadpisem.
+ *
+ * Pokud není předán vlastní `title`, automaticky sestaví nadpis
+ * jako kombinaci ikony PersonFill a Link komponenty odkazující
+ * na detail hodnocení (podle item.id).
+ * Používá se jako základ pro MediumCard a LargeCard.
  *
  * @component
- * @param {Object} props - The props for the TemplateCardCapsule component.
- * @param {Object} props.template - The object representing the template entity.
- * @param {string|number} props.template.id - The unique identifier for the template entity.
- * @param {string} props.template.name - The display name for the template entity.
- * @param {React.ReactNode} [props.children=null] - The content to render inside the card's body.
- *
- * @returns {JSX.Element} The rendered card component with a dynamic title and body content.
+ * @param {Object} props
+ * @param {Object} props.item - Entita EvaluationGQLModel (musí obsahovat `id`).
+ * @param {React.ReactNode} [props.children=null] - Obsah uvnitř těla karty.
+ * @param {React.ReactNode} [props.title=null] - Vlastní nadpis; pokud není zadán,
+ *   použije se ikona PersonFill + Link na detail hodnocení.
+ * @returns {JSX.Element} Bootstrap karta s nadpisem a obsahem.
  *
  * @example
- * // Example usage:
- * import { TemplateCardCapsule } from './TemplateCardCapsule';
- * import { Button } from 'react-bootstrap';
+ * // S vlastním nadpisem:
+ * <CardCapsule item={item} title="Detail">
+ *   <p>Obsah karty</p>
+ * </CardCapsule>
  *
- * const templateEntity = { id: 123, name: "Example Entity" };
- *
- * <TemplateCardCapsule template={templateEntity}>
- *   <Button variant="primary">Click Me</Button>
- * </TemplateCardCapsule>
+ * @example
+ * // Bez nadpisu — automaticky ikona + link:
+ * <CardCapsule item={item}>
+ *   <p>Obsah karty</p>
+ * </CardCapsule>
  */
 export const CardCapsule = ({ item, children, title=null}) => {
     
+    // Pokud title nebyl předán (null), sestavíme výchozí nadpis:
+    // ikona osoby (PersonFill) + mezera + klikací link na detail hodnocení
     if (!title) {
         title = <><PersonFill /> <Link item={item} /></>
     }
     return (
-        
+        // CardCapsule_ je generická karta z _template — stará se o Bootstrap styling
         <CardCapsule_ title={title}>
+            {/* Obsah karty — children z nadřazené komponenty */}
             {children}
         </CardCapsule_>
     )

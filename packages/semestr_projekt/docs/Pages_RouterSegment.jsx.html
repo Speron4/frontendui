@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Pages/RouterSegment.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Pages/RouterSegment.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file RouterSegment.jsx
+ * @description Definice směrování (routování) pro modul hodnocení (EvaluationGQLModel).
+ * Zahrnuje hlavní aplikační cesty (vytvoření, detail, seznam, atd.) i pomocná 
+ * přesměrování ze sdílených nebo generických URI.
+ *
+ * @module EvaluationGQLModel/Pages/RouterSegment
+ */
+
+import { Navigate, useParams } from "react-router"
+import { PageVector } from "./PageVector"
+import { PageUpdateItem } from "./PageUpdateItem"
+import { PageCreateItem } from "./PageCreateItem"
+import { PageReadItem } from "./PageReadItem"
+import { PageDeleteItem } from "./PageDeleteItem"
+import { PageExamEvaluations } from "./PageExamEvaluations"
+
+import { DeleteItemURI, UpdateItemURI } from "../Components"
+import { CreateURI, ReadItemURI, VectorItemsURI } from "../Components"
+import { ExamEvaluationsItemURI } from "../Components"
+
+/**
+ * Helper komponenty pro přesměrování s :id parametrem.
+ * Čtou id z URL a přesměrují na správnou /evaluation/ cestu.
+ */
+const RedirectToRead   = () => { 
+    // Načtení identifikátoru záznamu z aktuální URL adresy
+    const { id } = useParams(); 
+    // Nahrazení aktuální URL v historii prohlížeče a přesměrování na view routu
+    return &lt;Navigate to={`/evaluation/EvaluationGQLModel/view/${id}`} replace /> 
+}
+const RedirectToUpdate = () => { 
+    // Načtení identifikátoru záznamu z aktuální URL adresy
+    const { id } = useParams(); 
+    // Nahrazení aktuální URL v historii prohlížeče a přesměrování na editační routu
+    return &lt;Navigate to={`/evaluation/EvaluationGQLModel/edit/${id}`} replace /> 
+}
+const RedirectToDelete = () => { 
+    // Načtení identifikátoru záznamu z aktuální URL adresy
+    const { id } = useParams(); 
+    // Nahrazení aktuální URL v historii prohlížeče a přesměrování na mazací routu
+    return &lt;Navigate to={`/evaluation/EvaluationGQLModel/delete/${id}`} replace /> 
+}
+
+/**
+ * Definice segmentů rout pro Evaluation stránky.
+ * Obsahuje přesměrování z /generic/EvaluationGQLModel/* na /evaluation/EvaluationGQLModel/*
+ * -- PageNavbar z _template interně používá /generic/ prefix, tato přesměrování
+ * zajistí, že uživatel skončí vždy na správné /evaluation/ URL.
+ *
+ * @constant
+ * @type {Array&lt;{ path: string, element: JSX.Element }>}
+ */
+export const EvaluationGQLModelSegments = [
+    // ── Vlastní routy ──────────────────────────────────────────────────────
+    {
+        // Cesta směřující na formulář pro vytvoření nového záznamu
+        path: CreateURI,
+        element: (&lt;PageCreateItem />),
+    },
+    {
+        // Cesta pro zobrazení seznamu všech položek (kolekce/vektor)
+        path: VectorItemsURI,
+        element: (&lt;PageVector />),
+    },
+    {
+        // Cesta pro detail konkrétního záznamu (vyžaduje parametr id)
+        path: ReadItemURI,
+        element: (&lt;PageReadItem />),
+    },
+    {
+        // Cesta pro formulář úpravy existujícího záznamu (vyžaduje parametr id)
+        path: UpdateItemURI,
+        element: (&lt;PageUpdateItem />),
+    },
+    {
+        // Cesta pro stránku mazání specifického záznamu (vyžaduje parametr id)
+        path: DeleteItemURI,
+        element: (&lt;PageDeleteItem />),
+    },
+    // Seznam hodnocených u konkrétní zkoušky
+    {
+        // Specifická routa pro zobrazení seznamu studentů a jejich pokusů u jedné zkoušky
+        path: ExamEvaluationsItemURI,
+        element: (&lt;PageExamEvaluations />),
+    },
+    {
+        // Fallback zachytávající jakékoliv jiné slovo namísto "list" a mapující ho na vektor
+        path: VectorItemsURI.replace("list", ":any"),
+        element: (&lt;PageVector />),
+    },
+    {
+        // Fallback zachytávající jakékoliv jiné slovo namísto "view" a mapující ho na detail
+        path: ReadItemURI.replace("view", ":any"),
+        element: (&lt;PageReadItem />),
+    },
+
+    // ── Přesměrování z /generic/EvaluationGQLModel/* → /evaluation/... ────
+    // PageNavbar z _template používá interně /generic/ prefix.
+    // Tyto routy zachytí /generic/ URL a přesměrují na správnou /evaluation/ URL.
+    {
+        // Záchyt generické routy pro list a přesměrování na naši Vector routu
+        path: "/generic/EvaluationGQLModel/list",
+        element: (&lt;Navigate to={VectorItemsURI} replace />),
+    },
+    {
+        // Totéž, ale ošetřuje případ s koncovým lomítkem
+        path: "/generic/EvaluationGQLModel/list/",
+        element: (&lt;Navigate to={VectorItemsURI} replace />),
+    },
+    {
+        // Záchyt generické routy pro detail entity (předá ID do naší pomocné komponenty)
+        path: "/generic/EvaluationGQLModel/view/:id",
+        element: (&lt;RedirectToRead />),
+    },
+    {
+        // Záchyt generické routy pro editaci (předá ID do naší pomocné komponenty)
+        path: "/generic/EvaluationGQLModel/edit/:id",
+        element: (&lt;RedirectToUpdate />),
+    },
+    {
+        // Záchyt generické routy pro mazání (předá ID do naší pomocné komponenty)
+        path: "/generic/EvaluationGQLModel/delete/:id",
+        element: (&lt;RedirectToDelete />),
+    },
+    {
+        // Záchyt generického vytvoření, prosté přesměrování bez potřeby ID
+        path: "/generic/EvaluationGQLModel/create",
+        element: (&lt;Navigate to={CreateURI} replace />),
+    },
+    {
+        // Obecný catch-all fallback pro další neznámé /generic/ routy -> pošle uživatele na seznam
+        path: "/generic/EvaluationGQLModel/:any",
+        element: (&lt;Navigate to={VectorItemsURI} replace />),
+    },
+]</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-EvaluationGQLModel_Components.html">EvaluationGQLModel/Components</a></li><li><a href="module-EvaluationGQLModel_Components_CardCapsule.html">EvaluationGQLModel/Components/CardCapsule</a></li><li><a href="module-EvaluationGQLModel_Components_Children.html">EvaluationGQLModel/Components/Children</a></li><li><a href="module-EvaluationGQLModel_Components_ConfirmEdit.html">EvaluationGQLModel/Components/ConfirmEdit</a></li><li><a href="module-EvaluationGQLModel_Components_Filter.html">EvaluationGQLModel/Components/Filter</a></li><li><a href="module-EvaluationGQLModel_Components_LargeCard.html">EvaluationGQLModel/Components/LargeCard</a></li><li><a href="module-EvaluationGQLModel_Components_Link.html">EvaluationGQLModel/Components/Link</a></li><li><a href="module-EvaluationGQLModel_Components_LiveEdit.html">EvaluationGQLModel/Components/LiveEdit</a></li><li><a href="module-EvaluationGQLModel_Components_MediumCard.html">EvaluationGQLModel/Components/MediumCard</a></li><li><a href="module-EvaluationGQLModel_Components_MediumEditableContent.html">EvaluationGQLModel/Components/MediumEditableContent</a></li><li><a href="module-EvaluationGQLModel_Pages_PageDeleteItem.html">EvaluationGQLModel/Pages/PageDeleteItem</a></li><li><a href="module-EvaluationGQLModel_Pages_PageExamEvaluations.html">EvaluationGQLModel/Pages/PageExamEvaluations</a></li><li><a href="module-EvaluationGQLModel_Pages_RouterSegment.html">EvaluationGQLModel/Pages/RouterSegment</a></li><li><a href="module-EvaluationGQLModel_Queries_Fragments.html">EvaluationGQLModel/Queries/Fragments</a></li></ul><h3>Global</h3><ul><li><a href="global.html#AttemptsTable">AttemptsTable</a></li><li><a href="global.html#CreateBody">CreateBody</a></li><li><a href="global.html#CreateButton">CreateButton</a></li><li><a href="global.html#CreateDialog">CreateDialog</a></li><li><a href="global.html#CreateLink">CreateLink</a></li><li><a href="global.html#DeleteBody">DeleteBody</a></li><li><a href="global.html#DeleteButton">DeleteButton</a></li><li><a href="global.html#DeleteDialog">DeleteDialog</a></li><li><a href="global.html#DeleteLink">DeleteLink</a></li><li><a href="global.html#ExamRow">ExamRow</a></li><li><a href="global.html#FullContent">FullContent</a></li><li><a href="global.html#MyNavDropdown">MyNavDropdown</a></li><li><a href="global.html#PageBase">PageBase</a></li><li><a href="global.html#PageItemBase">PageItemBase</a></li><li><a href="global.html#PageLink">PageLink</a></li><li><a href="global.html#PageReadItem">PageReadItem</a></li><li><a href="global.html#PageReadItemRolesOn">PageReadItemRolesOn</a></li><li><a href="global.html#PageUpdateItem">PageUpdateItem</a></li><li><a href="global.html#PartsEvaluations">PartsEvaluations</a></li><li><a href="global.html#ReadAsyncAction">ReadAsyncAction</a></li><li><a href="global.html#SearchQueryStr">SearchQueryStr</a></li><li><a href="global.html#StudentRow">StudentRow</a></li><li><a href="global.html#TemplateScalarAttribute">TemplateScalarAttribute</a></li><li><a href="global.html#TemplateScalarAttributeLazy">TemplateScalarAttributeLazy</a></li><li><a href="global.html#TemplateVectorsAttribute">TemplateVectorsAttribute</a></li><li><a href="global.html#TemplateVectorsAttributeInfinite">TemplateVectorsAttributeInfinite</a></li><li><a href="global.html#TemplateVectorsAttributeLazy">TemplateVectorsAttributeLazy</a></li><li><a href="global.html#TemplateVectorsAttribute_old">TemplateVectorsAttribute_old</a></li><li><a href="global.html#UpdateBody">UpdateBody</a></li><li><a href="global.html#UpdateButton">UpdateButton</a></li><li><a href="global.html#UpdateDialog">UpdateDialog</a></li><li><a href="global.html#UpdateLink">UpdateLink</a></li><li><a href="global.html#VectorsVisualiser">VectorsVisualiser</a></li><li><a href="global.html#examEvaluationsURL">examEvaluationsURL</a></li><li><a href="global.html#examURL">examURL</a></li><li><a href="global.html#followUpTemplateVectorItemDelete">followUpTemplateVectorItemDelete</a></li><li><a href="global.html#followUpTemplateVectorItemInsert">followUpTemplateVectorItemInsert</a></li><li><a href="global.html#followUpTemplateVectorItemUpdate">followUpTemplateVectorItemUpdate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon Jul 27 2026 10:06:51 GMT+0200 (středoevropský letní čas)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

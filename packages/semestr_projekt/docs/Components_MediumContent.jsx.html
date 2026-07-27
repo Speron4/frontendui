@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Components/MediumContent.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Components/MediumContent.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { Col } from "../../../../_template/src/Base/Components/Col"
+import { Row } from "../../../../_template/src/Base/Components/Row"
+import { Link } from "../../../../_template/src/Base/Components/Link"
+import { ProxyLink } from "../../../../_template/src/Base/Components/ProxyLink"
+import { URIRoot } from "../../uriroot"
+import { MediumContent as MediumContent_ } from "../../../../_template/src/Base/Components/MediumContent"
+import { Attribute } from "../../../../_template/src/Base/Components"
+
+/**
+ * Sestaví URL na stránku "seznam hodnocených u zkoušky".
+ *
+ * @param {string|number} examId - ID zkoušky (EvaluationGQLModel.exam.id).
+ * @returns {string} Absolutní/relativní URL cesta na stránku s hodnocenými u dané zkoušky.
+ */
+const examEvaluationsURL = (examId) =>
+    `${URIRoot}/EvaluationGQLModel/byExam/${examId}`
+
+/**
+ * @file MediumContent.jsx
+ * @description Komponenta pro detailní zobrazení hodnocení studenta v levém panelu.
+ * Uspořádání: ID -> Student -> Zkouška -> Semestr -> Atributy hodnocení.
+ *
+ * @param {Object} props
+ * @param {Object} props.item - Objekt EvaluationGQLModel s navázanými relacemi.
+ * @param {React.ReactNode} [props.children] - Volitelný další obsah pod atributy.
+ */
+export const MediumContent = ({ item, children }) => {
+    // Role aktuálně přihlášeného uživatele vůči tomuto RBAC objektu (např. učitel, student)
+    const roles = item?.rbacobject?.currentUserRoles || []
+
+    // Textová reprezentace známky - preferuje explicitní "grade", fallback na "name" klasifikačního stupně
+    const gradeText = item?.classificationlevel?.grade || item?.classificationlevel?.name
+
+    // Celé jméno studenta z navázaného uživatelského účtu
+    const studentName = item?.student?.user?.fullname
+
+    // Název předmětu, ke kterému se zkouška/hodnocení vztahuje
+    const examSubjectText = item?.semester?.subject?.name
+
+    // Popisek semestru ve formátu "Semestr č. X", pokud je pořadí semestru známé
+    const semesterLabel = item?.semester?.order
+        ? `Semestr č. ${item.semester.order}`
+        : null
+
+    // Datum konání zkoušky/termínu, formátované do českého formátu (den.měsíc.rok)
+    const eventDate = item?.event?.startdate
+        ? new Date(item.event.startdate).toLocaleDateString("cs-CZ")
+        : null
+
+    return (
+        &lt;div>
+            &lt;h5>Hodnocení studenta&lt;/h5>
+            {/* Identifikátor záznamu hodnocení, jen informativně pro debugging/podporu */}
+            &lt;small className="text-muted d-block mb-3">ID: {item?.id}&lt;/small>
+
+            {/* Student - klikací link na cizí appku se Studentem */}
+            &lt;Attribute label="Student">
+                {item?.student ? (
+                    // Pokud je student navázán, zobrazí se jako proklik na jeho detail (cross-entity Link)
+                    &lt;Link item={item.student}>{studentName || "Zobrazit studenta"}&lt;/Link>
+                ) : (
+                    // Fallback, pokud student z nějakého důvodu chybí/nenačetl se
+                    &lt;span className="text-muted">Neznámé jméno studenta&lt;/span>
+                )}
+            &lt;/Attribute>
+
+
+            {/* Předmět - link na SubjectGQLModel */}
+            &lt;Attribute label="Předmět">
+                {item?.semester?.subject ? (
+                    &lt;Link item={item.semester.subject}>
+                        {examSubjectText || "Zobrazit předmět"}
+                    &lt;/Link>
+                ) : (
+                    // Předmět nemusí být vždy dostupný (např. chybějící vazba semestr -> předmět)
+                    &lt;span className="text-muted small">Nepřiřazeno&lt;/span>
+                )}
+            &lt;/Attribute>
+
+            {/* Semestr */}
+            &lt;Attribute label="Semestr">
+                {item?.semester ? (
+                    &lt;Link item={item.semester}>
+                        {semesterLabel || "Zobrazit semestr"}
+                    &lt;/Link>
+                ) : (
+                    // Semestr nenalezen - vypíše se aspoň jeho ID pro snazší diagnostiku
+                    &lt;span className="font-monospace small text-muted">
+                        Semestr nenalezen (ID: {item?.semesterId || "?"})
+                    &lt;/span>
+                )}
+            &lt;/Attribute>
+
+            {/* Event - kdy to proběhlo */}
+            &lt;Attribute label="Datum vykonání">
+                {item?.event ? (
+                    &lt;Link item={item.event}>{eventDate || "Zobrazit termín"}&lt;/Link>
+                ) : (
+                    &lt;span className="text-muted small">Termín nenalezen&lt;/span>
+                )}
+            &lt;/Attribute>
+
+            &lt;hr />
+
+            {/* Volný textový popis hodnocení (např. poznámka zkoušejícího) */}
+            &lt;Attribute label="Popis">{item?.description || "Bez popisu"}&lt;/Attribute>
+
+            {/* Pořadí pokusu studenta u dané zkoušky, výchozí hodnota 1 (první pokus) */}
+            &lt;Attribute label="Pořadí">{item?.order ?? 1}&lt;/Attribute>
+
+            {/* Počet bodů dosažených studentem, zobrazeno jako zvýrazněný badge */}
+            &lt;Attribute label="Body">
+                &lt;span className="badge bg-primary">{item?.points ?? 0} b.&lt;/span>
+            &lt;/Attribute>
+
+            {/* Výsledný verdikt - "F" (fail) znamená neprospěl, cokoliv jiného se bere jako prospěl */}
+            &lt;Attribute label="Výsledek">
+                {gradeText === "F" ? (
+                    &lt;span className="text-danger fw-bold">Neprospěl&lt;/span>
+                ) : (
+                    &lt;span className="text-success fw-bold">Prospěl&lt;/span>
+                )}
+            &lt;/Attribute>
+
+            {/* Konkrétní klasifikační stupeň (známka), fallback na ID klasifikačního stupně */}
+            &lt;Attribute label="Známka (Grade)">
+                {gradeText ? (
+                    &lt;span className="badge bg-warning text-dark">{gradeText}&lt;/span>
+                ) : (
+                    &lt;span className="font-monospace small text-muted">
+                        {item?.classificationlevelId || "Nepřiřazeno"}
+                    &lt;/span>
+                )}
+            &lt;/Attribute>
+
+            {/* Role aktuálního uživatele vůči tomuto záznamu - může jich být víc (badge pro každou roli) */}
+            &lt;Attribute label="Moje role">
+                {roles.length > 0 ? (
+                    roles.map((role) => (
+                        &lt;span key={role.id} className="badge bg-info text-dark me-1">
+                            {role.roletype?.name}
+                        &lt;/span>
+                    ))
+                ) : (
+                    &lt;span className="text-muted small">
+                        Role nejsou načteny
+                    &lt;/span>
+                )}
+            &lt;/Attribute>
+
+            &lt;hr />
+            {/* Prostor pro dodatečný obsah vkládaný rodičovskou komponentou (např. akční tlačítka) */}
+            {children}
+        &lt;/div>
+    )
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-EvaluationGQLModel_Components.html">EvaluationGQLModel/Components</a></li><li><a href="module-EvaluationGQLModel_Components_CardCapsule.html">EvaluationGQLModel/Components/CardCapsule</a></li><li><a href="module-EvaluationGQLModel_Components_Children.html">EvaluationGQLModel/Components/Children</a></li><li><a href="module-EvaluationGQLModel_Components_ConfirmEdit.html">EvaluationGQLModel/Components/ConfirmEdit</a></li><li><a href="module-EvaluationGQLModel_Components_Filter.html">EvaluationGQLModel/Components/Filter</a></li><li><a href="module-EvaluationGQLModel_Components_LargeCard.html">EvaluationGQLModel/Components/LargeCard</a></li><li><a href="module-EvaluationGQLModel_Components_Link.html">EvaluationGQLModel/Components/Link</a></li><li><a href="module-EvaluationGQLModel_Components_LiveEdit.html">EvaluationGQLModel/Components/LiveEdit</a></li><li><a href="module-EvaluationGQLModel_Components_MediumCard.html">EvaluationGQLModel/Components/MediumCard</a></li><li><a href="module-EvaluationGQLModel_Components_MediumEditableContent.html">EvaluationGQLModel/Components/MediumEditableContent</a></li><li><a href="module-EvaluationGQLModel_Pages_PageDeleteItem.html">EvaluationGQLModel/Pages/PageDeleteItem</a></li><li><a href="module-EvaluationGQLModel_Pages_PageExamEvaluations.html">EvaluationGQLModel/Pages/PageExamEvaluations</a></li><li><a href="module-EvaluationGQLModel_Pages_RouterSegment.html">EvaluationGQLModel/Pages/RouterSegment</a></li><li><a href="module-EvaluationGQLModel_Queries_Fragments.html">EvaluationGQLModel/Queries/Fragments</a></li></ul><h3>Global</h3><ul><li><a href="global.html#AttemptsTable">AttemptsTable</a></li><li><a href="global.html#CreateBody">CreateBody</a></li><li><a href="global.html#CreateButton">CreateButton</a></li><li><a href="global.html#CreateDialog">CreateDialog</a></li><li><a href="global.html#CreateLink">CreateLink</a></li><li><a href="global.html#DeleteBody">DeleteBody</a></li><li><a href="global.html#DeleteButton">DeleteButton</a></li><li><a href="global.html#DeleteDialog">DeleteDialog</a></li><li><a href="global.html#DeleteLink">DeleteLink</a></li><li><a href="global.html#ExamRow">ExamRow</a></li><li><a href="global.html#FullContent">FullContent</a></li><li><a href="global.html#MyNavDropdown">MyNavDropdown</a></li><li><a href="global.html#PageBase">PageBase</a></li><li><a href="global.html#PageItemBase">PageItemBase</a></li><li><a href="global.html#PageLink">PageLink</a></li><li><a href="global.html#PageReadItem">PageReadItem</a></li><li><a href="global.html#PageReadItemRolesOn">PageReadItemRolesOn</a></li><li><a href="global.html#PageUpdateItem">PageUpdateItem</a></li><li><a href="global.html#PartsEvaluations">PartsEvaluations</a></li><li><a href="global.html#ReadAsyncAction">ReadAsyncAction</a></li><li><a href="global.html#SearchQueryStr">SearchQueryStr</a></li><li><a href="global.html#StudentRow">StudentRow</a></li><li><a href="global.html#TemplateScalarAttribute">TemplateScalarAttribute</a></li><li><a href="global.html#TemplateScalarAttributeLazy">TemplateScalarAttributeLazy</a></li><li><a href="global.html#TemplateVectorsAttribute">TemplateVectorsAttribute</a></li><li><a href="global.html#TemplateVectorsAttributeInfinite">TemplateVectorsAttributeInfinite</a></li><li><a href="global.html#TemplateVectorsAttributeLazy">TemplateVectorsAttributeLazy</a></li><li><a href="global.html#TemplateVectorsAttribute_old">TemplateVectorsAttribute_old</a></li><li><a href="global.html#UpdateBody">UpdateBody</a></li><li><a href="global.html#UpdateButton">UpdateButton</a></li><li><a href="global.html#UpdateDialog">UpdateDialog</a></li><li><a href="global.html#UpdateLink">UpdateLink</a></li><li><a href="global.html#VectorsVisualiser">VectorsVisualiser</a></li><li><a href="global.html#examEvaluationsURL">examEvaluationsURL</a></li><li><a href="global.html#examURL">examURL</a></li><li><a href="global.html#followUpTemplateVectorItemDelete">followUpTemplateVectorItemDelete</a></li><li><a href="global.html#followUpTemplateVectorItemInsert">followUpTemplateVectorItemInsert</a></li><li><a href="global.html#followUpTemplateVectorItemUpdate">followUpTemplateVectorItemUpdate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon Jul 27 2026 10:06:51 GMT+0200 (středoevropský letní čas)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

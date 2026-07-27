@@ -1,31 +1,34 @@
+/**
+ * @file Children.jsx
+ * @description Pomocná komponenta pro předávání entity EvaluationGQLModel do potomků.
+ *
+ * @module EvaluationGQLModel/Components/Children
+ */
+
 import { ChildWrapper } from "@hrbolek/uoisfrontend-shared";
 
 /**
- * TemplateChildren Component
+ * Obalová komponenta pro předávání `item` do všech potomků.
  *
- * A utility React component that wraps its children with the `ChildWrapper` component, 
- * passing down an `template` entity along with other props to all child elements.
- * This component is useful for injecting a common `template` entity into multiple children 
- * while preserving their existing functionality.
+ * Využívá `ChildWrapper` ze shared knihovny, který automaticky clonuje
+ * všechny children elementy a předá jim prop `item`. Užitečné, pokud
+ * chceme jeden společný `item` injektovat do více komponent bez ručního
+ * předávání prop na každé místo.
  *
  * @component
- * @param {Object} props - The props for the TemplateChildren component.
- * @param {any} props.template - An entity (e.g., object, string, or other data) to be passed to the children.
- * @param {React.ReactNode} props.children - The children elements to be wrapped and enhanced.
- * @param {...any} props - Additional props to be passed to each child element.
- *
- * @returns {JSX.Element} A `ChildWrapper` component containing the children with the injected `template` entity.
+ * @param {Object} props
+ * @param {Object} props.item - Entita EvaluationGQLModel předávaná do potomků.
+ * @param {React.ReactNode} props.children - Potomci, kteří dostanou `item` jako prop.
+ * @param {...any} props - Další props předané dál na každého potomka.
+ * @returns {JSX.Element} ChildWrapper s injektovaným `item`.
  *
  * @example
- * // Example usage:
- * const templateEntity = { id: 1, message: "No data available" };
- *
- * <TemplateChildren template={templateEntity}>
- *     <CustomMessage />
- *     <CustomIcon />
- * </TemplateChildren>
- *
- * // Result: Both <CustomMessage /> and <CustomIcon /> receive the 'template' prop with the specified entity.
+ * <Children item={evaluationItem}>
+ *   <SomeComponent />
+ *   <AnotherComponent />
+ * </Children>
+ * // Oba komponenty dostanou prop: item={evaluationItem}
  */
 export const Children = ({item, children, ...props}) => 
+    // ChildWrapper prochází children a ke každému přidá item={item} + ...props
     <ChildWrapper item={item} children={children} {...props} />
