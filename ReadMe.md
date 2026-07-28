@@ -24,7 +24,32 @@
 - částečné zprovoznění atributů(ještě je potřeba něco upravit)
   
 ## 1.6.2026
--předělání zobrzování číselného id jako normálního člověka či zkoušku
+- předělání zobrzování číselného id jako normálního člověka či zkoušku
+- předělání Tree na přehlednější verzi
+
+## 15.7.2026
+- oprava publikace, verze a jejího jména
+- examid sjednocení
+
+## 20.7.2026
+- funkčnost publikace zajištěna
+-  upravování vzhledu hodnocení
+
+## 21.7.2026
+- Úprava vektoru stránky pro zobrazení většího množství hodnocených
+- vytvoření tlačítka pro návrat na původní stránku
+
+## 25.7.2026
+- vytvoření Linků na jiné modely
+- finální vzhledové úpravy
+
+## 26.7.2026
+- změna v části adresy z generic na evaluation
+
+## 27.7.2026
+- finální publikace
+- dodělání dokumentace
+
 
 # Jak spustit konrétní app
 
